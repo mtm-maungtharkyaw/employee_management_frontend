@@ -1,0 +1,34 @@
+// React Hook
+React Hooks ဆိုတာက React ရဲ့ Features (eg. state, lifecycle)
+တွေကို Function Component အတွင်းမှာသုံးနိုင်အောင်လုပ်ပေးတဲ့ 
+functions တွေဖြစ်ပါတယ်
+
+hooks တွေမတိုင်ခင်တုန်းက ကျွန်တော်တို့က react ရဲ့ state, lifecycle
+တွေကို class components တွေအတွင်းမှာသာသုံးနိုင်ခဲ့တယ်
+hooks တွေပေါ်လာပြီးနောက်မှာ state, lifecycle တွေကိုလည်း functional
+components အတွင်းမှာပါ အသုံးပြုလာနိုင်ပြီး ကျွန်တော်တို့ရဲ့ code တွေကို 
+လွယ်လွယ်ကူရှင်းရှင်းလင်းလင်းနဲ့ရေးသားရပိုလွယ်ကူပါလာတယ်
+
+React Hooks Example
+1. useState => For State Management
+import { useState } from 'react';
+function Counter() {
+    const [count, setCount] = useState(0);
+
+    return (
+        <div>
+            <p>{count}</p>
+            <button onClick={() => setCount(prev => prev + 1)}>+</button>
+        </div>
+    )
+
+}
+
+2. useEffect => For Side Effects
+import { useEffect } from 'react';
+useEffect(() => {
+    console.log("Component mounded or updated");
+    return () => {
+        console.log("Cleanup before unmount or before next run");
+    }
+}, [])

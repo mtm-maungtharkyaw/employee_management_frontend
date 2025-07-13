@@ -1,0 +1,31 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+  --soft-blue: #4682B4;
+  --dark-blue: #406c91;
+  --main-color: #4cbd9b;
+  --secondary-color: #f0f0f0;
+  --text-black: #34495e;
+}
+
+.dark-blue {
+  color: var(--dark-blue)
+}
+
+.bg-dark-blue {
+  background-color: var(--dark-blue);
+}
+
+.soft-green {
+  color: var(--main-color)
+}
+
+.bg-soft-green {
+  background-color: var(--main-color);
+}
