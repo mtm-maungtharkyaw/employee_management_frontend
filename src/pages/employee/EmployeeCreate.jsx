@@ -187,9 +187,9 @@ const EmployeeCreate = () => {
         }
     }
 
-    useEffect(() => {
-        console.log(joinDate)
-    }, [joinDate])
+    const fetchDepartment = async () => {
+
+    }
     return (
         <>
             {/* Toast Container */}
