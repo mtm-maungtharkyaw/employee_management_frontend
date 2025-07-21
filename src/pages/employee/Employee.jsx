@@ -6,23 +6,39 @@ import { FaChevronLeft } from "react-icons/fa"
 import { FaChevronRight } from "react-icons/fa"
 
 // react-router-dom
-import { useNavigate } from "react-router-dom"
+import { useNavigate, NavLink } from "react-router-dom"
 
 // components
 import Breadcrumbs from '../../components/Breadcrumbs'
 import Loading from '../../components/common/Loading'
 import Pagination from '../../components/common/Pagination'
 
+// axios instance
 import axiosInstance from "../../api/axiosInstance"
 
+// context
+import { useAuth } from "../../contexts/AuthContext"
+
+// constants
+import { AUTH_ROLES } from "../../constants/role"
+
+// moment
+import moment from 'moment'
+
 export default function Employee() {
+    const authCtx = useAuth()
     const [employees, setEmployees] = useState([])
+    const [departmentOptions, setDepartmentOptions] = useState([])
     const [loading, setLoading] = useState(false)
     const [pagination, setPagination] = useState({
         limit: 10,
         page: 1,
         total: 1,
         totalPages: 1
+    })
+    const [filterOptions, setFilterOptions] = useState({
+        department_id: '',
+        name: ''
     })
 
     const navigate = useNavigate()
@@ -35,72 +51,108 @@ export default function Employee() {
         navigate("/employees/create")
     }
 
-    const fetchEmployee = async (page = 1, limit = 10) => {
-        setLoading(true)
-        const start = Date.now()
-        let emp_data = null
+    const fetchDepartmentOptions = async () => {
         try {
-            emp_data = await axiosInstance.post('/employee/', {
-                page,
-                limit
-            })
+            const { options } = await axiosInstance.get('/department/options')
+            if (options.length > 0) {
+                setDepartmentOptions(options.map(data => ({ label: data.name, value: data._id })))
+            }
         } catch (error) {
-            console.log(error.response?.data)
-        } finally {
-            const elapsed = Date.now() - start
-            const delay = Math.max(600 - elapsed, 0)
-            setTimeout(() => {
-                if(emp_data) {
-                    setEmployees(emp_data.list)
-                    setPagination(emp_data.pagination)
-                }
-                setLoading(false)
-            }, delay)
+            if (error.response) {
+                const message = error.response.data.message
+                showToast("error", message)
+            } else {
+                showToast("error", "Something Went Wrong")
+            }
         }
     }
 
+    const fetchEmployee = async (page = 1, limit = 10, filter = {department_id: '', name: ''}) => {
+        setLoading(true)
+        try {
+            const emp_data = await axiosInstance.post('/employee/', {
+                page,
+                limit,
+                department_id: filter.department_id,
+                name: filter.name
+            })
+            setEmployees(emp_data.list)
+            setPagination(emp_data.pagination)
+        } catch (error) {
+            console.log(error.response?.data)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const onChangeSearchName = (name) => {
+        setFilterOptions(prev => ({
+            ...prev,
+            name
+        }))
+    }
+
+    const onChangeSearchDepartment = (department_id) => {
+        setFilterOptions(prev => ({
+            ...prev,
+            department_id
+        }))
+    }
+
+    const searchEmployee = () => {
+        fetchEmployee(1, pagination.limit, filterOptions)
+    }
+
     const onPageChange = async (page) => {
-        fetchEmployee(page, pagination.limit)
+        fetchEmployee(page, pagination.limit, filterOptions)
+    }
+
+    const formatDate = (isoDate) => {
+        if (!isoDate) return ""
+        
+        const formatted = moment(isoDate).format('DD/MM/YYYY')
+        return formatted
     }
 
     useEffect(() => {
-        fetchEmployee()
-        // console.log(employees)
+        fetchEmployee(pagination.page, pagination.limit)
+        fetchDepartmentOptions()
     }, [])
 
     return (
         <>
             {loading && <Loading />}
             <Breadcrumbs items={breadcrumb_items} />
-            <div className='flex justify-between items-end mb-2'>
+
+            <div className='flex justify-between items-end mb-5'>
+                {/* Filter Options */}
                 <div className='filter flex items-end space-x-2'>
                     <div>
                         <label htmlFor="" className='block mb-1'>Department</label>
-                        <select id='' defaultValue="" className="select bg-white w-[200px]">
-                            <option disabled={true}></option>
-                            <option>Dev 01</option>
-                            <option>Dev 02</option>
-                            <option>Dev 03</option>
+                        <select id='' className="select bg-white w-[200px]" onChange={(e) => onChangeSearchDepartment(e.target.value)}>
+                            <option value="">All</option>
+                            {departmentOptions.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
-                        <label htmlFor="" className='block mb-1'>Position</label>
-                        <select id='' defaultValue="" className="select bg-white w-[200px]">
-                            <option disabled={true}></option>
-                            <option>Junior</option>
-                            <option>Senior</option>
-                            <option>Manager</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label htmlFor="" className='block mb-1'>Employee Id</label>
-                        <input type="text" placeholder="neutral" className="input bg-white w-[200px]" />
+                        <label htmlFor="" className='block mb-1'>Employee Name</label>
+                        <input 
+                            type="text" 
+                            placeholder="Employee Name" 
+                            className="input bg-white w-[200px]"
+                            value={filterOptions.name}
+                            onChange={(e) => onChangeSearchName(e.target.value)}
+                        />
                     </div>
 
-                    <button className="btn bg-[#4caf93] text-white border-none">Search</button>
+                    <button className="btn bg-[#4caf93] text-white border-none" onClick={searchEmployee}>Search</button>
                 </div>
                 <div>
-                    <button className="btn bg-[#4caf93] text-white border-none" onClick={goToEmployeeCreatePage}>Add <IoAddCircle size={22} /></button>
+                    {authCtx.authUser?.role === AUTH_ROLES.ADMIN && (
+                        <button className="btn bg-[#4caf93] text-white border-none" onClick={goToEmployeeCreatePage}>Add <IoAddCircle size={22} /></button>
+                    )}
                 </div>
             </div>
             {(!loading && employees.length == 0) && <h1>There is no employee lists</h1>}
@@ -122,13 +174,13 @@ export default function Employee() {
                             </thead>
                             <tbody className="text-gray-700">
                                 {employees.map((employee, index) => (
-                                    <tr className="hover:bg-gray-50 border-b border-[#e6e5e5]">
+                                    <tr key={employee._id} className="hover:bg-gray-50 border-b border-[#e6e5e5]">
                                         <th>{index + 1}</th>
-                                        <td>{employee.employee_id}</td>
+                                        <td><NavLink to={employee.employee_id} className="underline">{employee.employee_id}</NavLink></td>
                                         <td>{employee.name}</td>
-                                        <td>{employee.department}</td>
+                                        <td>{employee?.department?.name}</td>
                                         <td>{employee.position}</td>
-                                        <td>{employee.join_date}</td>
+                                        <td>{formatDate(employee.join_date)}</td>
                                         <td>{employee.personal?.gender}</td>
                                     </tr>
                                 ))}
@@ -136,7 +188,7 @@ export default function Employee() {
                         </table>
                     </div>
                     {/* pagination */}
-                    <Pagination 
+                    <Pagination
                         currentPage={pagination.page}
                         totalPages={pagination.totalPages}
                         onPageChange={onPageChange}

@@ -22,8 +22,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useAuth } from "../contexts/AuthContext"
 
 const EmployeeLogin = () => {
-    const [loginId, setLoginId] = useState('E00002')
-    const [password, setPassword] = useState('6(&MoE#)icdi#')
+    const [loginId, setLoginId] = useState('')
+    const [password, setPassword] = useState('')
     const [errors, setErrors] = useState({
         loginId: '',
         password: ''
@@ -70,7 +70,6 @@ const EmployeeLogin = () => {
                 employee_id: loginId,
                 password
             })
-            user.role = 'employee'
             authCtx.login(user, accessToken)
         } catch (error) {
             if (error.response) {

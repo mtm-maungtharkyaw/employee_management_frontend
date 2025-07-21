@@ -1,5 +1,10 @@
-export const validateData = (schema, data) => {
-    const result = schema.validate(data, { abortEarly: false })
+export const validateData = (schema, data, context = {}) => {
+    console.log({
+        schema,
+        data,
+        context
+    })
+    const result = schema.validate(data, { abortEarly: false, context })
 
     if (result.error) {
         const error = result.error

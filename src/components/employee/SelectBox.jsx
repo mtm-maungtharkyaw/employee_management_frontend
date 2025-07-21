@@ -8,31 +8,46 @@ const SelectBox = ({
     name,
     containerClassName = '',
     inputClassName = '',
-    labelClassName = ''
+    labelClassName = '',
+    errorMessage
 }) => {
     return (
-        <div className={`form-control w-full flex items-end ${containerClassName}`}>
-            <div className="w-[30%]">
-                <label htmlFor={name} className="label">
-                    <span className={`label-text ${labelClassName}`}>{label}</span>
-                </label>
+        <div className={`${containerClassName}`}>
+            <div className={`form-control w-full flex items-end`}>
+                <div className="w-[30%]">
+                    <label htmlFor={name} className="label">
+                        <span className={`label-text ${labelClassName}`}>{label}</span>
+                    </label>
+                </div>
+                <div className="w-[70%]">
+                    <select
+                        name={name}
+                        value={value}
+                        onChange={(e) => {
+                            onChange(e.target.value)
+                        }}
+                        disabled={disabled}
+                        className={`input input-${size} ${inputClassName} w-full bg-white border border-b-[#9c9c9c] rounded-none`}
+                    >
+                        <option value="" disabled>{label}</option>
+                        {options.map((option, index) => (
+                            <option key={index} value={option.value || option}>
+                                {option.label || option}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
-            <div className="w-[70%]">
-                <select
-                    name={name}
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    disabled={disabled}
-                    className={`input input-${size} ${inputClassName} w-full bg-white border border-b-[#9c9c9c] rounded-none`}
-                >
-                    <option value="" disabled>{label}</option>
-                    {options.map((option, index) => (
-                        <option key={index} value={option.value || option}>
-                            {option.label || option}
-                        </option>
-                    ))}
-                </select>
-            </div>
+            {
+                errorMessage && (
+                    <div className="flex">
+                        <div className="w-[30%]"></div>
+                        <div>
+                            <small className="text-[#fc1303]">{errorMessage}</small>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     );
 };

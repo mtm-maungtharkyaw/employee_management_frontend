@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
 // components
 import Breadcrumbs from "../../components/Breadcrumbs"
@@ -7,21 +7,21 @@ import SelectBox from "../../components/employee/SelectBox"
 import Loading from "../../components/common/Loading"
 
 // icons
-import { BiSolidImageAdd } from "react-icons/bi";
+import { BiSolidImageAdd } from "react-icons/bi"
 
 // axios instance
-import axiosInstance from "../../api/axiosInstance";
+import axiosInstance from "../../api/axiosInstance"
 
 // helper
-import { validateData } from "../../utils/helper";
+import { validateData } from "../../utils/helper"
 
 // toastify
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify'
 
 import { useNavigate } from 'react-router-dom'
 
 // validation
-import Joi from "joi";
+import Joi, { options } from "joi"
 
 const BREADCRUMB_ITEMS = [{ label: "Employee", to: "/employees" }, { label: "Add" }]
 
@@ -42,14 +42,20 @@ const maritalStatusOptions = [
     { value: 'divorced', label: 'Divorced' },
     { value: 'widowed', label: 'Widowed' },
     { value: 'separated', label: 'Separated' },
-];
+]
 
 const EmployeeCreate = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate()
+    const [departmentOptions, setDepartmentOptions] = useState([])
+    const [jobTypeOptions, setJobTypeOptions] = useState([])
+    const [positionOptions, setPositionOptions] = useState([])
 
     const [employeeId, setEmployeeId] = useState('')
     const [name, setName] = useState('')
     const [joinDate, setJoinDate] = useState('')
+    const [department, setDepartment] = useState('')
+    const [position, setPosition] = useState('')
+    const [jobType, setJobType] = useState('')
     const [officeEmail, setOfficeEmail] = useState('')
     const [languageSkill, setLanguageSkill] = useState('')
     const [programmingSkill, setProgrammingSkill] = useState('')
@@ -76,26 +82,19 @@ const EmployeeCreate = () => {
         name: Joi.string().required(),
         joinDate: Joi.date().allow(null, ''),
         officeEmail: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).allow(null, ''),
-        languageSkill: Joi.string().allow(null, ''),
-        programmingSkill: Joi.string().allow(null, ''),
-        graduateUniversity: Joi.string().allow(null, ''),
-        graduateDegree: Joi.string().allow(null, ''),
+        department: Joi.string().required(),
+        position: Joi.string().required(),
+        jobType: Joi.string().required(),
         dob: Joi.date().required(),
-        nrcNo: Joi.string().allow(null, ''),
-        gender: Joi.string().allow(null, ''),
         phone: Joi.string().required(),
         email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
-        bankAccount: Joi.string().allow(null, ''),
-        religion: Joi.string().allow(null, ''),
         contactName: Joi.string().required(),
         contactPhone: Joi.string().required(),
-        relation: Joi.string().allow(null, ''),
-        address: Joi.string().allow(null, '')
-    })
+    }).unknown();
 
     const showToast = (type = "success", message) => {
         if (type === "success") {
-            toast.success(message);
+            toast.success(message)
         } else if (type === "error") {
             toast.error(message)
         }
@@ -105,6 +104,10 @@ const EmployeeCreate = () => {
         setErrors(null)
     }
 
+    const goToEmployeeListPage = () => {
+        navigate('/employees')
+    }
+
     const createEmployee = async () => {
         clearErrorMessages()
         const validationErrors = validateData(employeeCreateSchema, {
@@ -112,21 +115,14 @@ const EmployeeCreate = () => {
             name,
             joinDate,
             officeEmail,
-            languageSkill,
-            programmingSkill,
-            graduateUniversity,
-            graduateDegree,
+            department,
+            position,
+            jobType,
             dob,
-            nrcNo,
-            gender,
             phone,
             email,
-            bankAccount,
-            religion,
             contactName,
-            contactPhone,
-            relation,
-            address
+            contactPhone
         })
 
         if (validationErrors) {
@@ -140,6 +136,9 @@ const EmployeeCreate = () => {
             name: name,
             join_date: joinDate,
             office_email: officeEmail,
+            department,
+            position,
+            job_type: jobType,
             education: {
                 language_skill: languageSkill,
                 programming_skill: programmingSkill,
@@ -174,22 +173,75 @@ const EmployeeCreate = () => {
             const delay = Math.max(1000 - elapsed, 0)
             setTimeout(() => {
                 setIsLoading(false)
-                navigate('/employees')
-            }, delay);
+                goToEmployeeListPage()
+            }, delay)
         } catch (error) {
             setIsLoading(false)
             if (error.response) {
                 const message = error.response.data.message
                 showToast("error", message)
             } else {
-                showToast("error", error.message)
+                showToast("error","Something Went Wrong")
             }
         }
     }
 
-    const fetchDepartment = async () => {
-
+    const fetchDepartmentOptions = async () => {
+        try {
+            const { options } = await axiosInstance.get('/department/options')
+            if ( options.length > 0) {
+                setDepartmentOptions(options.map(data => ({label: data.name, value: data._id})))
+            }
+        } catch (error) {
+            if (error.response) {
+                const message = error.response.data.message
+                showToast("error", message)
+            } else {
+                showToast("error", "Something Went Wrong")
+            }
+        }
     }
+
+    const fetchJobTypeOptions = async () => {
+        try {
+            const { options } = await axiosInstance.get('/job-type/options')
+            console.log(options)
+            if(options.length > 0) {
+                setJobTypeOptions(options)
+            }
+        } catch (error) {
+            if (error.response) {
+                const message = error.response.data.message
+                showToast("error", message)
+            } else {
+                showToast("error", "Something Went Wrong")
+            }
+        }
+    }
+
+    const fetchPostionOptions = async () => {
+        try {
+            const { options } = await axiosInstance.get('/position/options')
+            console.log(options)
+            if(options.length > 0) {
+                setPositionOptions(options)
+            }
+        } catch (error) {
+            if (error.response) {
+                const message = error.response.data.message
+                showToast("error", message)
+            } else {
+                showToast("error", "Something Went Wrong")
+            }
+        }
+    }
+
+    useEffect(() => {
+        fetchDepartmentOptions()
+        fetchJobTypeOptions()
+        fetchPostionOptions()
+    }, [])
+
     return (
         <>
             {/* Toast Container */}
@@ -230,6 +282,7 @@ const EmployeeCreate = () => {
                                     placeholder="Enter Employee Id"
                                     containerClassName="mb-3"
                                     labelClassName="text-[#5c5c5c] text-sm"
+                                    inputClassName="border-b border-b-[#9c9c9c]"
                                     value={employeeId}
                                     onChange={setEmployeeId}
                                     errorMessage={errors?.employeeId}
@@ -239,6 +292,7 @@ const EmployeeCreate = () => {
                                     label="Name"
                                     name="name"
                                     placeholder="Enter Employee Name"
+                                    inputClassName="border-b border-b-[#9c9c9c]"
                                     containerClassName="mb-3"
                                     labelClassName="text-[#5c5c5c] text-sm"
                                     value={name}
@@ -252,13 +306,46 @@ const EmployeeCreate = () => {
                                     placeholder="Enter Join Ddate"
                                     containerClassName="mb-3"
                                     labelClassName="text-[#5c5c5c] text-sm"
+                                    inputClassName="border-b border-b-[#9c9c9c]"
                                     value={joinDate}
                                     onChange={setJoinDate}
                                     type="date"
                                     errorMessage={errors?.joinDate}
                                 />
+                                {/* Employee Position */}
+                                <SelectBox
+                                    label="Select Position"
+                                    options={positionOptions}
+                                    name="Position"
+                                    containerClassName="mb-3"
+                                    labelClassName="text-[#5c5c5c] text-sm"
+                                    value={position}
+                                    onChange={setPosition}
+                                    errorMessage={errors?.position}
+                                />
+                                {/* Employee Departments */}
+                                <SelectBox
+                                    label="Select Department"
+                                    options={departmentOptions}
+                                    name="department"
+                                    containerClassName="mb-3"
+                                    labelClassName="text-[#5c5c5c] text-sm"
+                                    value={department}
+                                    onChange={setDepartment}
+                                    errorMessage={errors?.department}
+                                />
                             </div>
                             <div>
+                                <SelectBox
+                                    label="Select Job Type"
+                                    options={jobTypeOptions}
+                                    name="Type"
+                                    containerClassName="mb-3"
+                                    labelClassName="text-[#5c5c5c] text-sm"
+                                    value={jobType}
+                                    onChange={setJobType}
+                                    errorMessage={errors?.jobType}
+                                />
                                 {/* Employee Office Email */}
                                 <Input
                                     label="Office Email"
@@ -266,6 +353,7 @@ const EmployeeCreate = () => {
                                     placeholder="Enter Office Email"
                                     containerClassName="mb-3"
                                     labelClassName="text-[#5c5c5c] text-sm"
+                                    inputClassName="border-b border-b-[#9c9c9c]"
                                     value={officeEmail}
                                     onChange={setOfficeEmail}
                                     type="email"
@@ -287,6 +375,7 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Language Skill"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={languageSkill}
                                 onChange={setLanguageSkill}
                                 errorMessage={errors?.languageSkill}
@@ -298,6 +387,7 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Programming Skill"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={programmingSkill}
                                 onChange={setProgrammingSkill}
                                 errorMessage={errors?.programmingSkill}
@@ -311,6 +401,7 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Graduate University"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={graduateUniversity}
                                 onChange={setGraduateUniversity}
                                 errorMessage={errors?.graduateUniversity}
@@ -322,6 +413,7 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Graduate Degree"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={graduateDegree}
                                 onChange={setGraduateDegree}
                                 errorMessage={errors?.graduateDegree}
@@ -342,6 +434,7 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Date of Birth"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 type="date"
                                 value={dob}
                                 onChange={setDob}
@@ -354,6 +447,7 @@ const EmployeeCreate = () => {
                                 name="gender"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={gender}
                                 onChange={setGender}
                                 errorMessage={errors?.gender}
@@ -365,6 +459,7 @@ const EmployeeCreate = () => {
                                 name="marital"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={maritalStatus}
                                 onChange={setMaritalStatus}
                                 errorMessage={errors?.maritalStatus}
@@ -376,6 +471,7 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Nrc No"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={nrcNo}
                                 onChange={setNrcNo}
                                 errorMessage={errors?.nrcNO}
@@ -387,6 +483,7 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Phone"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={phone}
                                 onChange={setPhone}
                                 errorMessage={errors?.phone}
@@ -398,6 +495,7 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Email"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={email}
                                 onChange={setEmail}
                                 errorMessage={errors?.email}
@@ -409,6 +507,7 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Bank Account"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={bankAccount}
                                 onChange={setBankAccount}
                                 errorMessage={errors?.bankAccount}
@@ -420,18 +519,21 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Religion"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={religion}
                                 onChange={setReligion}
                                 errorMessage={errors?.religion}
                             />
                         </div>
                         <div>
+                            {/* Employee Contact Name */}
                             <Input
                                 label="Contact Name"
                                 name="contact-name"
                                 placeholder="Enter Contact Name"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={contactName}
                                 onChange={setContactName}
                                 errorMessage={errors?.contactName}
@@ -442,26 +544,31 @@ const EmployeeCreate = () => {
                                 placeholder="Enter Contact Phone"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={contactPhone}
                                 onChange={setContactPhone}
                                 errorMessage={errors?.contactPhone}
                             />
+                            {/* Employee Contact Relation */}
                             <Input
                                 label="Relation"
                                 name="relation"
                                 placeholder="Enter Relation"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={relation}
                                 onChange={setRelation}
                                 errorMessage={errors?.relation}
                             />
+                            {/* Employee Address */}
                             <Input
                                 label="Address"
                                 name="address"
                                 placeholder="Enter Address"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
+                                inputClassName="border-b border-b-[#9c9c9c]"
                                 value={address}
                                 onChange={setAddress}
                                 errorMessage={errors?.address}
@@ -472,7 +579,7 @@ const EmployeeCreate = () => {
 
                 <div className="flex justify-end">
                     <button className="bg-soft-green btn text-white border-none mr-3 w-[120px] py-2" onClick={createEmployee}>Add</button>
-                    <button className="bg-soft-green btn text-white border-none w-[120px] py-2">Cancel</button>
+                    <button className="bg-gray-500  btn text-white border-none w-[120px] py-2" onClick={goToEmployeeListPage}>Cancel</button>
                 </div>
             </div>
         </>

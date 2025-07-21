@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import '../styles/layout.css'
 
+// react router
+import { NavLink } from 'react-router-dom'
+
 // components
 import Loading from './common/Loading';
 
@@ -10,7 +13,10 @@ import { FaCaretDown } from "react-icons/fa6";
 
 // theme context
 import { useTheme } from '../contexts/ThemeContext'
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext'
+
+// constants
+import { AUTH_ROLES } from '../constants/role';
 
 export default function Header() {
     const themeCtx = useTheme()
@@ -37,7 +43,7 @@ export default function Header() {
                         <button className='text-[#406c91] cursor-pointer' onClick={themeCtx.toggleSidebar}>
                             <GiHamburgerMenu size={22} />
                         </button>
-                        <span className='dark-blue text-md'>Welcome, {authCtx.authUser?.role === "admin" ? "Admin" : authCtx.authUser?.name }</span>
+                        <span className='dark-blue text-md'>Welcome, {authCtx.authUser?.role === "admin" ? "Admin" : authCtx.authUser?.name}</span>
                     </div>
                     <div>
                         <div className="dropdown dropdown-end">
@@ -48,7 +54,12 @@ export default function Header() {
                                 <span><FaCaretDown size={22} /></span>
                             </div>
                             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-sm z-1 w-45 p-1 shadow-sm">
-                                <li><a>Profile</a></li>
+                                <li>
+                                    <NavLink to={authCtx.authUser?.role === AUTH_ROLES.ADMIN ? '/adminProfile' : '/employeeProfile'}>Profile</NavLink>
+                                </li>
+                                <li>
+                                    <NavLink to="/changePassword" >Change Password</NavLink>
+                                </li>
                                 <li>
                                     <button onClick={logout} disabled={showLoading}>Logout</button>
                                 </li>

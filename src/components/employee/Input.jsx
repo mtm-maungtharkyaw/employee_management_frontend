@@ -10,11 +10,12 @@ const Input = ({
     labelClassName = '',
     containerClassName = '',
     errorMessage,
+    readOnly = false,
     ...rest
 }) => {
     return (
         <div className={`form-control w-full ${containerClassName}`}>
-            <div className="flex items-center">
+            <div className="flex items-end">
                 <div className="w-[30%]">
                     <label htmlFor={name} className="label">
                         <span className={`label-text ${labelClassName}`}>{label}</span>
@@ -28,7 +29,8 @@ const Input = ({
                         placeholder={placeholder}
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
-                        className={`input input-${size} ${inputClassName} w-full bg-white border border-b-[#9c9c9c] rounded-none`}
+                        className={`input input-${size} ${inputClassName} w-full bg-white rounded-none`}
+                        readOnly={readOnly}
                         {...rest}
                     />
                 </div>

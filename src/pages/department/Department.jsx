@@ -125,14 +125,14 @@ const Department = () => {
 
     const fetchDepartments = async (page = 1, limit = 10, name = "") => {
         setIsLoading(true)
-        const start = Date.now()
-        let dep_data = null
         try {
-            dep_data = await axiosInstance.post('/department', {
+            const dep_data = await axiosInstance.post('/department', {
                 page,
                 limit,
                 name
             })
+            setDepartments(dep_data.list)
+            setPagination(dep_data.pagination)
         } catch (error) {
             if (error.response) {
                 const message = error.response.data.message
@@ -141,15 +141,7 @@ const Department = () => {
                 showToast("error", "Something went wrong")
             }
         } finally {
-            const elapsed = Date.now() - start
-            const delay = Math.max(600 - elapsed, 0)
-            setTimeout(() => {
-                if (dep_data) {
-                    setDepartments(dep_data.list)
-                    setPagination(dep_data.pagination)
-                }
-                setIsLoading(false)
-            }, delay);
+            setIsLoading(false)
         }
     }
 
@@ -212,7 +204,7 @@ const Department = () => {
 
         try {
             await axiosInstance.put(`/department/${form.id}`, formData)
-            showToast("success", "Successfully Updated department")
+            showToast("success", "Successfully Updated Department")
             clearSearchOptions()
             fetchDepartments(1, pagination.limit)
         } catch (error) {
@@ -343,7 +335,7 @@ const Department = () => {
                 </div>
             </div>
             {(!isLoading && departments.length == 0) && (
-                <h1>There is no employee lists</h1>
+                <h1>There is no department lists</h1>
             )}
             {(!isLoading && departments.length > 0) && (
                 <div>

@@ -22,8 +22,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useAuth } from "../contexts/AuthContext"
 
 const AdminLogin = () => {
-    const [email, setEmail] = useState('mtm.maungtharkyaw@gmail.com')
-    const [password, setPassword] = useState('admin661997')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
     const [errors, setErrors] = useState({
         email: '',
         password: ''
@@ -71,7 +71,6 @@ const AdminLogin = () => {
                 email,
                 password
             })
-            user.role = 'admin'
             authCtx.login(user, accessToken)
         } catch (error) {
             if (error.response) {
