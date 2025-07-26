@@ -18,13 +18,16 @@ import { validateData } from "../../utils/helper"
 // toastify
 import { ToastContainer, toast } from 'react-toastify'
 
-// react router dom
-import { useNavigate } from 'react-router-dom'
+// react router
+import { useNavigate, useParams } from 'react-router-dom'
+
+// moment
+import moment from "moment"
 
 // validation
 import Joi, { options } from "joi"
 
-const BREADCRUMB_ITEMS = [{ label: "Employee", to: "/employees" }, { label: "Add" }]
+const BREADCRUMB_ITEMS = [{ label: "Employee", to: "/employees" }, { label: "Edit" }]
 
 const genderOptions = [
     {
@@ -45,8 +48,10 @@ const maritalStatusOptions = [
     { value: 'separated', label: 'Separated' },
 ]
 
-const EmployeeCreate = () => {
+const EmployeeEdit = () => {
+    const { id } = useParams()
     const navigate = useNavigate()
+
     const [departmentOptions, setDepartmentOptions] = useState([])
     const [jobTypeOptions, setJobTypeOptions] = useState([])
     const [positionOptions, setPositionOptions] = useState([])
@@ -78,7 +83,7 @@ const EmployeeCreate = () => {
 
     const [isLoading, setIsLoading] = useState(false)
 
-    const employeeCreateSchema = Joi.object({
+    const employeeUpdateSchema = Joi.object({
         employeeId: Joi.string().required(),
         name: Joi.string().required(),
         joinDate: Joi.date().allow(null, ''),
@@ -109,9 +114,48 @@ const EmployeeCreate = () => {
         navigate('/employees')
     }
 
-    const createEmployee = async () => {
+    const fetchEmployee = async (emp_id) => {
+        setIsLoading(true)
+        try {
+            const { employee } = await axiosInstance.get(`/employee/${emp_id}`)
+            console.log(employee?.employee_id)
+            setEmployeeId(employee?.employee_id)
+            setName(employee?.name)
+            setJoinDate(employee?.join_date ? moment(employee?.join_date).format('YYYY-MM-DD') : '')
+            setDepartment(employee?.department?._id)
+            setPosition(employee?.position)
+            setJobType(employee?.job_type)
+            setOfficeEmail(employee?.office_email)
+            setLanguageSkill(employee?.education?.language_skill || '')
+            setProgrammingSkill(employee?.education?.programming_skill || '')
+            setGraduateUniversity(employee?.education?.graduate_university || '')
+            setGraduateDegree(employee?.education?.graduate_degree || '')
+            setDob(employee?.personal?.dob ? moment(employee?.personal?.dob).format('YYYY-MM-DD') : '')
+            setNrcNo(employee?.personal?.nrc_no || '')
+            setGender(employee?.personal?.gender || '')
+            setMaritalStatus(employee?.personal?.marital_status || '')
+            setPhone(employee?.personal?.phone || '')
+            setEmail(employee?.personal?.email || '')
+            setBankAccount(employee?.personal?.bank_account || '')
+            setReligion(employee?.personal?.religion || '')
+            setContactName(employee?.personal?.emergency_contact?.name || '')
+            setRelation(employee?.personal?.emergency_contact?.relation || '')
+            setContactPhone(employee?.personal?.emergency_contact?.phone || '')
+            setAddress(employee?.personal?.address || '')
+        } catch (error) {
+            if (error.response) {
+                const message = error.response.data.message
+                showToast("error", message)
+            } else {
+                showToast("error", "Something went wrong")
+            }
+        }
+        setIsLoading(false)
+    }
+
+    const updateEmployee = async () => {
         clearErrorMessages()
-        const validationErrors = validateData(employeeCreateSchema, {
+        const validationErrors = validateData(employeeUpdateSchema, {
             employeeId,
             name,
             joinDate,
@@ -168,8 +212,8 @@ const EmployeeCreate = () => {
         const start = Date.now()
 
         try {
-            await axiosInstance.post('/employee/create', employeeData)
-            showToast("success", "Successfully Created Employee")
+            await axiosInstance.put('/employee/update', employeeData)
+            showToast("success", "Successfully Updated Employee")
             const elapsed = Date.now() - start
             const delay = Math.max(1000 - elapsed, 0)
             setTimeout(() => {
@@ -182,7 +226,7 @@ const EmployeeCreate = () => {
                 const message = error.response.data.message
                 showToast("error", message)
             } else {
-                showToast("error","Something Went Wrong")
+                showToast("error", "Something Went Wrong")
             }
         }
     }
@@ -190,8 +234,8 @@ const EmployeeCreate = () => {
     const fetchDepartmentOptions = async () => {
         try {
             const { options } = await axiosInstance.get('/department/options')
-            if ( options.length > 0) {
-                setDepartmentOptions(options.map(data => ({label: data.name, value: data._id})))
+            if (options.length > 0) {
+                setDepartmentOptions(options.map(data => ({ label: data.name, value: data._id })))
             }
         } catch (error) {
             if (error.response) {
@@ -207,7 +251,7 @@ const EmployeeCreate = () => {
         try {
             const { options } = await axiosInstance.get('/job-type/options')
             console.log(options)
-            if(options.length > 0) {
+            if (options.length > 0) {
                 setJobTypeOptions(options)
             }
         } catch (error) {
@@ -224,7 +268,7 @@ const EmployeeCreate = () => {
         try {
             const { options } = await axiosInstance.get('/position/options')
             console.log(options)
-            if(options.length > 0) {
+            if (options.length > 0) {
                 setPositionOptions(options)
             }
         } catch (error) {
@@ -238,6 +282,7 @@ const EmployeeCreate = () => {
     }
 
     useEffect(() => {
+        fetchEmployee(id)
         fetchDepartmentOptions()
         fetchJobTypeOptions()
         fetchPostionOptions()
@@ -283,10 +328,11 @@ const EmployeeCreate = () => {
                                     placeholder="Enter Employee Id"
                                     containerClassName="mb-3"
                                     labelClassName="text-[#5c5c5c] text-sm"
-                                    inputClassName="border-b border-b-[#9c9c9c]"
+                                    inputClassName="border-b border-b-[#9c9c9c] dark-blue"
                                     value={employeeId}
                                     onChange={setEmployeeId}
                                     errorMessage={errors?.employeeId}
+                                    disabled={true}
                                 />
                                 {/* Emplyee Name */}
                                 <Input
@@ -579,7 +625,7 @@ const EmployeeCreate = () => {
                 </div>
 
                 <div className="flex justify-end">
-                    <button className="bg-soft-green btn text-white border-none mr-3 w-[120px] py-2" onClick={createEmployee}>Add</button>
+                    <button className="bg-soft-green btn text-white border-none mr-3 w-[120px] py-2" onClick={updateEmployee}>Update</button>
                     <button className="bg-gray-500  btn text-white border-none w-[120px] py-2" onClick={goToEmployeeListPage}>Cancel</button>
                 </div>
             </div>
@@ -587,4 +633,4 @@ const EmployeeCreate = () => {
     )
 }
 
-export default EmployeeCreate
+export default EmployeeEdit

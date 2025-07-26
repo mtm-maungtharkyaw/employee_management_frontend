@@ -22,7 +22,7 @@ import { validateData } from "../../utils/helper"
 // constants
 import { AUTH_ROLES } from "../../constants/role"
 
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext"
 
 const BREADCRUMB_ITEMS = [{
     label: "Attendance Report"

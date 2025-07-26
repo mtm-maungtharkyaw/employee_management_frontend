@@ -3,7 +3,6 @@ const SelectBox = ({
     options = [],
     value,
     onChange,
-    size = 'md',
     disabled = false,
     name,
     containerClassName = '',
@@ -13,8 +12,8 @@ const SelectBox = ({
 }) => {
     return (
         <div className={`${containerClassName}`}>
-            <div className={`form-control w-full flex items-end`}>
-                <div className="w-[30%]">
+            <div className={`form-control w-full flex items-end justify-between`}>
+                <div>
                     <label htmlFor={name} className="label">
                         <span className={`label-text ${labelClassName}`}>{label}</span>
                     </label>
@@ -27,7 +26,7 @@ const SelectBox = ({
                             onChange(e.target.value)
                         }}
                         disabled={disabled}
-                        className={`input input-${size} ${inputClassName} w-full bg-white border border-b-[#9c9c9c] rounded-none`}
+                        className={`select ${inputClassName} w-full bg-white border border-b-[#9c9c9c] rounded-none focus:outline-none focus:border-inherit`}
                     >
                         <option value="" disabled>{label}</option>
                         {options.map((option, index) => (

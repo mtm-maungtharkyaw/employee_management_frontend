@@ -1,31 +1,60 @@
 import { useEffect, useState } from "react"
 
-// momment
-import moment from "moment"
-
 // components
 import Breadcrumbs from "../../components/Breadcrumbs"
 import Loading from "../../components/common/Loading"
-import Pagination from "../../components/common/Pagination"
+import Input from "../../components/employee/Input"
+import SelectBox from "../../components/employee/SelectBox"
 
 // axios instance
-import axiosInstance from "../../api/axiosInstance"
+import axiosInstance from '../../api/axiosInstance'
 
 // toastify
 import { ToastContainer, toast } from 'react-toastify'
 
+// moment
+import moment from 'moment'
+
+// Joi
+import Joi from "joi"
+
+// helper
+import { validateData } from "../../utils/helper"
+
+// constants
+import { AUTH_ROLES } from "../../constants/role"
+
 import { useAuth } from "../../contexts/AuthContext"
 
 const BREADCRUMB_ITEMS = [{
-    label: "Attendance History"
+    label: "Leave History"
 }]
 
-const AttendanceHistory = () => {
-    const { authUser } = useAuth()
+const PERIOD_OPTIONS = [
+    {
+        label: 'Morning',
+        value: 'morning'
+    },
+    {
+        label: 'Evening',
+        value: 'afternoon'
+    },
+    {
+        label: 'Full',
+        value: 'full_day'
+    }
+]
 
+const LEAVE_STATUSES = {
+    PENDING: 'pending',
+    APPROVED: 'approved',
+    REJECTED: 'rejected'
+}
+
+const LeaveHistory = () => {
     const [fromDate, setFromDate] = useState('')
     const [toDate, setToDate] = useState('')
-    const [attendances, setAttendances] = useState([])
+    const [leaveDays, setLeaveDays] = useState([])
     const [pagination, setPagination] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
 
@@ -56,36 +85,23 @@ const AttendanceHistory = () => {
 
         setFromDate(fromStr)
         setToDate(toStr)
-
-        fetchAttendance(fromStr, toStr)
-    };
-
-    const showToast = (type = "success", message) => {
-        if (type === "success") {
-            toast.success(message);
-        } else if (type === "error") {
-            toast.error(message)
-        }
+        fetchLeaveRequest(fromStr, toStr, 1, 10)
     }
 
-    const onPageChange = (page) => {
-        fetchAttendance(fromDate, toDate, "", page, pagination.limit)
-    }
-
-    const fetchAttendance = async (from, to, status = "", page = 1, limit = 10) => {
-        setIsLoading(true);
+    const fetchLeaveRequest = async (from, to, page = 1, limit = 10) => {
+        setIsLoading(true)
 
         try {
-            const payload = {
-                employee_id: authUser?._id,
-                from_date: moment(from).toISOString(),
-                to_date: moment(to).toISOString(),
+            const payLoad = {
+                start_date: from,
+                end_date: to,
                 page,
                 limit
-            };
+            }
 
-            const { attendances, pagination } = await axiosInstance.post('/attendance/by-employee', payload);
-            setAttendances(attendances)
+            const { leaves, pagination } = await axiosInstance.post('/leave/by-employee', payLoad)
+            console.log(leaves)
+            setLeaveDays(leaves)
             setPagination(pagination)
         } catch (error) {
             console.error('Fetch attendance error:', error);
@@ -98,12 +114,12 @@ const AttendanceHistory = () => {
                 showToast("error", "Something went wrong")
             }
         } finally {
-            setIsLoading(false);
+            setIsLoading(false)
         }
-    };
+    }
 
-    const searchAttendance = () => {
-        fetchAttendance(fromDate, toDate, "", 1, pagination.limit)
+    const searchLeaveRequest = () => {
+        fetchLeaveRequest(fromDate, toDate, 1, pagination.limit)
     }
 
     useEffect(() => {
@@ -156,13 +172,15 @@ const AttendanceHistory = () => {
                         />
                     </div>
 
-                    <button className="btn bg-[#4caf93] text-white border-none" onClick={searchAttendance}>Search</button>
+                    <button className="btn bg-[#4caf93] text-white border-none" onClick={searchLeaveRequest}>Search</button>
                 </div>
             </div>
-            {(!isLoading && attendances.length == 0) && (
-                <h1>There is no attendance lists</h1>
+
+            {(!isLoading && leaveDays.length == 0) && (
+                <h1>There is no leave request lists</h1>
             )}
-            {(!isLoading && attendances.length > 0) && (
+
+            {(!isLoading && leaveDays.length > 0) && (
                 <div>
                     <div className="overflow-x-auto rounded-sm border border-[#e6e5e5] bg-[#fefefe]">
                         <table className="table">
@@ -172,44 +190,46 @@ const AttendanceHistory = () => {
                                     <th>No</th>
                                     <th>Employee Id</th>
                                     <th>Name</th>
-                                    <th>Record Date</th>
-                                    <th>Check In</th>
-                                    <th>Check Out</th>
-                                    <th>Attendance Type</th>
-                                    <th>Note</th>
-                                    <th>Action</th>
+                                    <th>Leave Date</th>
+                                    <th>Period</th>
+                                    <th>Requested At</th>
+                                    <th>Status</th>
+                                    <th>Leave Reason</th>
                                 </tr>
                             </thead>
                             <tbody className="text-gray-700">
                                 {
-                                    attendances.map((attendance, index) => (
-                                        <tr key={attendance.date} className="hover:bg-gray-50 border-b border-[#e6e5e5]">
-                                            <th>{(pagination.page - 1) * pagination.limit + index + 1}</th>
-                                            <td>{attendance.employee?.employee_id}</td>
-                                            <td>{attendance.employee?.name}</td>
-                                            <td>{attendance?.date ? moment(attendance?.date).format('YYYY/MM/DD') : ''}</td>
-                                            <td>{attendance?.check_in ? moment(attendance.check_in).format('hh:mm A') : ''}</td>
-                                            <td>{attendance.check_out ? moment(attendance.check_out).format('hh:mm A') : ''}</td>
-                                            <td>{attendance?.status}</td>
-                                            <td>{attendance?.notes}</td>
-                                            <td></td>
-                                        </tr>
-                                    ))
+                                    leaveDays.map((leaveDay, index) => {
+                                        const id = (pagination.page - 1) * pagination.limit + index + 1
+                                        const name = leaveDay.employee?.name
+                                        const employee_id = leaveDay.employee?.employee_id
+                                        const date = leaveDay.date ? moment(leaveDay.date).format('YYYY/MM/DD') : ''
+                                        let period = PERIOD_OPTIONS.filter(option => option.value === leaveDay.period)
+                                        period = period.length > 0 ? period[0].label : ''
+                                        const requestedAt = moment(leaveDay.createdAt).format('YYYY/MM/DD')
+                                        const status = leaveDay.status
+                                        const reason = leaveDay.reason
+                                        return (
+                                            <tr key={leaveDay._id} className="hover:bg-gray-50 border-b border-[#e6e5e5]">
+                                                <th>{id}</th>
+                                                <td>{employee_id}</td>
+                                                <td>{name}</td>
+                                                <td>{date}</td>
+                                                <td>{period}</td>
+                                                <td>{requestedAt}</td>
+                                                <td className="uppercase">{status}</td>
+                                                <td>{reason}</td>
+                                            </tr>
+                                        )
+                                    })
                                 }
                             </tbody>
                         </table>
                     </div>
-                    {/* pagination */}
-                    <Pagination
-                        currentPage={pagination.page}
-                        totalPages={pagination.totalPages}
-                        onPageChange={onPageChange}
-                    />
                 </div>
             )}
-
         </>
     )
 }
 
-export default AttendanceHistory
+export default LeaveHistory

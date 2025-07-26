@@ -12,6 +12,7 @@ import ChangePassword from './pages/ChangePassword'
 import Employee from './pages/employee/Employee'
 import EmployeeCreate from './pages/employee/EmployeeCreate'
 import EmployeeDetail from './pages/employee/EmployeeDetail'
+import EmployeeEdit from './pages/employee/EmployeeEdit'
 
 import Department from './pages/department/Department'
 
@@ -21,6 +22,12 @@ import AttendanceList from './pages/attendance/AttendanceList'
 
 import EmployeeProfile from './pages/profile/EmployeeProfile'
 import AdminProfile from './pages/profile/AdminProfile'
+
+import SingleLeaveRequest from './pages/leave/SingleLeaveRequest'
+import LeaveHistory from './pages/leave/LeaveHistory'
+import LongTermLeaveRequest from './pages/leave/LongTermLeaveRequest'
+import LeaveRequestList from './pages/leave/LeaveRequstList'
+import LeaveDetail from './pages/leave/LeaveDetail'
 
 // layout
 import AuthLayout from './components/AuthLayout'
@@ -53,6 +60,7 @@ const App = () => {
 							<Route path='/' element={<Dashboard />} />
 							<Route path="/employees" element={<Employee />} />
 							<Route path="/employees/create" element={<EmployeeCreate />} />
+							<Route path="/employees/edit/:id" element={<EmployeeEdit />} />
 							<Route path="/employees/:id" element={<EmployeeDetail/>} />
 
 							<Route path="/departments" element={<Department />} />
@@ -65,6 +73,12 @@ const App = () => {
 							<Route path='/adminProfile' element={<AdminProfile />} />
 
 							<Route path='/changePassword' element={<ChangePassword />} />
+
+							<Route path='/singleleaveRequest' element={<SingleLeaveRequest />} />
+							<Route path='/leaveHistory' element={<LeaveHistory />} />
+							<Route path='/LongleaveRequest' element={<LongTermLeaveRequest />} />
+							<Route path="/leaveRequestList" element={<LeaveRequestList />}/>
+							<Route path="/leaveDetail/:id" element={<LeaveDetail />} />
 						</Route>
 					</Route>
 				</Routes>

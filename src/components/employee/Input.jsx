@@ -11,6 +11,7 @@ const Input = ({
     containerClassName = '',
     errorMessage,
     readOnly = false,
+    disabled = false,
     ...rest
 }) => {
     return (
@@ -29,8 +30,9 @@ const Input = ({
                         placeholder={placeholder}
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
-                        className={`input input-${size} ${inputClassName} w-full bg-white rounded-none`}
+                        className={`input input-${size} ${inputClassName} w-full bg-white rounded-none focus:outline-none focus:border-inherit`}
                         readOnly={readOnly}
+                        disabled={disabled}
                         {...rest}
                     />
                 </div>
