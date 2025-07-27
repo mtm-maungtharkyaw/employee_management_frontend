@@ -44,9 +44,6 @@ axiosInstance.interceptors.response.use(
     },
     async (error) => {
         const originalRequest = error.config
-        console.log(error)
-        console.log(error.response)
-        console.log(error.response.status)
         if (error.response?.status === 403 && error.response?.data?.error?.code === "TOKEN_EXPIRED") {
             if (logoutHandler) {
                 logoutHandler()

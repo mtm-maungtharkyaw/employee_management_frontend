@@ -192,15 +192,22 @@ const AttendanceListReport = () => {
                     check_out: moment(`${localDate.format('YYYY-MM-DD')} ${att.check_out}`, 'YYYY-MM-DD HH:mm').utc().toISOString()
                 }
             })
-            await axiosInstance.post('/attendance/report-list', {
+            const result = await axiosInstance.post('/attendance/report-list', {
                 employee_id: selectedEmp?._id,
                 attendances: frmtAttendances
             })
             showToast("success", "Successfully Submitted Attendances")
         } catch (error) {
             if (error.response) {
-                const message = error.response.data.message
-                showToast("error", message)
+                const errorDetails = error.response.data.error
+                if(errorDetails) {
+                    for (let index = 0; index < errorDetails.length; index++) {
+                        showToast("error", errorDetails[index])
+                    }
+                } else {
+                    const message = error.response.data.message
+                    showToast("error", message)
+                }
             } else {
                 showToast("error", "Something Went Wrong")
             }
