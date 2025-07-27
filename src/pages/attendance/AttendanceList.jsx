@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react"
 
+// react router dom
+import { useNavigate } from "react-router-dom"
+
 // components
 import Breadcrumbs from "../../components/Breadcrumbs"
 import Loading from "../../components/common/Loading"
 import Pagination from "../../components/common/Pagination"
+import Button from "../../components/common/Button"
+
+// icons
+import { IoAddCircle } from "react-icons/io5"
+import { FaEdit } from "react-icons/fa"
+import { RiDeleteBin5Line } from "react-icons/ri"
 
 // toastify
 import { ToastContainer, toast } from 'react-toastify'
@@ -19,6 +28,8 @@ const BREADCRUMB_ITEMS = [{
 }]
 
 const AttendanceList = () => {
+    const nevigate = useNavigate()
+
     const [date, setDate] = useState('')
     const [attendances, setAttendances] = useState([])
     const [pagination, setPagination] = useState(null)
@@ -30,6 +41,10 @@ const AttendanceList = () => {
         } else if (type === "error") {
             toast.error(message)
         }
+    }
+
+    const goToAttendnaceListReportPage = () => {
+        nevigate('/attendanceListReport')
     }
 
     const searchAttendance = () => {
@@ -101,6 +116,13 @@ const AttendanceList = () => {
                         />
                     </div>
                     <button className="btn bg-[#4caf93] text-white border-none" onClick={searchAttendance}>Search</button>
+                </div>
+                <div>
+                    <Button
+                        text='Report'
+                        onClick={goToAttendnaceListReportPage}
+                        icon={<IoAddCircle size={22} />}
+                    />
                 </div>
             </div>
 

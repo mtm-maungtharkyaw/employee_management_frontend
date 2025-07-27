@@ -89,7 +89,7 @@ const Department = () => {
     };
 
     const openDeleteModal = (index) => {
-        if (index < 0 || index >= departments.length) return;
+        if (index < 0 || index >= departments.length) return
         const department = departments[index];
         setIsDeleteModalVisible(true)
         setDepartmentToDelete(department)

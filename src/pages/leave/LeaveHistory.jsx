@@ -203,10 +203,10 @@ const LeaveHistory = () => {
                                         const id = (pagination.page - 1) * pagination.limit + index + 1
                                         const name = leaveDay.employee?.name
                                         const employee_id = leaveDay.employee?.employee_id
-                                        const date = leaveDay.date ? moment(leaveDay.date).format('YYYY/MM/DD') : ''
+                                        const date = leaveDay.date ? moment(leaveDay.date).format('DD/MM/YYYY') : ''
                                         let period = PERIOD_OPTIONS.filter(option => option.value === leaveDay.period)
                                         period = period.length > 0 ? period[0].label : ''
-                                        const requestedAt = moment(leaveDay.createdAt).format('YYYY/MM/DD')
+                                        const requestedAt = moment(leaveDay.createdAt).format('DD/MM/YYYY')
                                         const status = leaveDay.status
                                         const reason = leaveDay.reason
                                         return (

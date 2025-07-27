@@ -19,6 +19,7 @@ import Department from './pages/department/Department'
 import AttendanceReport from './pages/attendance/AttendanceReport'
 import AttendanceHistory from './pages/attendance/AttendanceHistory'
 import AttendanceList from './pages/attendance/AttendanceList'
+import AttendanceListReport from './pages/attendance/AttendanceListReport'
 
 import EmployeeProfile from './pages/profile/EmployeeProfile'
 import AdminProfile from './pages/profile/AdminProfile'
@@ -28,6 +29,10 @@ import LeaveHistory from './pages/leave/LeaveHistory'
 import LongTermLeaveRequest from './pages/leave/LongTermLeaveRequest'
 import LeaveRequestList from './pages/leave/LeaveRequstList'
 import LeaveDetail from './pages/leave/LeaveDetail'
+import LeaveEdit from './pages/leave/LeaveEdit'
+
+import Announcement from './pages/announcement/Announcement'
+import AnnouncementCreate from './pages/announcement/AnnouncementCreate'
 
 // layout
 import AuthLayout from './components/AuthLayout'
@@ -61,13 +66,14 @@ const App = () => {
 							<Route path="/employees" element={<Employee />} />
 							<Route path="/employees/create" element={<EmployeeCreate />} />
 							<Route path="/employees/edit/:id" element={<EmployeeEdit />} />
-							<Route path="/employees/:id" element={<EmployeeDetail/>} />
+							<Route path="/employees/:id" element={<EmployeeDetail />} />
 
 							<Route path="/departments" element={<Department />} />
 
 							<Route path="/attendanceReport" element={<AttendanceReport />} />
 							<Route path="/attendanceHistory" element={<AttendanceHistory />} />
 							<Route path="/attendanceList" element={<AttendanceList />} />
+							<Route path="/attendanceListReport" element={<AttendanceListReport />} />
 
 							<Route path='/employeeProfile' element={<EmployeeProfile />} />
 							<Route path='/adminProfile' element={<AdminProfile />} />
@@ -77,8 +83,12 @@ const App = () => {
 							<Route path='/singleleaveRequest' element={<SingleLeaveRequest />} />
 							<Route path='/leaveHistory' element={<LeaveHistory />} />
 							<Route path='/LongleaveRequest' element={<LongTermLeaveRequest />} />
-							<Route path="/leaveRequestList" element={<LeaveRequestList />}/>
+							<Route path="/leaveRequestList" element={<LeaveRequestList />} />
 							<Route path="/leaveDetail/:id" element={<LeaveDetail />} />
+							<Route path="/leaveEdit/:id" element={<LeaveEdit />} />
+
+							<Route path="/announcement" element={<Announcement />} />
+							<Route path="/announcement/create" element={<AnnouncementCreate />} />
 						</Route>
 					</Route>
 				</Routes>

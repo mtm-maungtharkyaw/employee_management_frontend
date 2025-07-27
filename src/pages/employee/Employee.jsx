@@ -260,7 +260,6 @@ export default function Employee() {
                                     <th>Join Date</th>
                                     <th>Gender</th>
                                     {authCtx.authUser?.role === AUTH_ROLES.ADMIN && (<th>Action</th>)}
-
                                 </tr>
                             </thead>
                             <tbody className="text-gray-700">

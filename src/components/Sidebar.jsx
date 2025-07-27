@@ -9,7 +9,8 @@ import { FaHistory } from "react-icons/fa"
 import { FaClipboardCheck } from "react-icons/fa"
 import { MdEventNote } from "react-icons/md"
 import { HiOutlinePaperAirplane } from "react-icons/hi2"
-import { HiOutlineDocumentText } from 'react-icons/hi';
+import { HiOutlineDocumentText } from 'react-icons/hi'
+import { GrAnnounce } from "react-icons/gr"
 
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
@@ -156,6 +157,13 @@ export default function Sidebar() {
                             </NavLink>
                         </li>
                     )}
+
+                    <li className='main-menu-item'>
+                            <NavLink to="/announcement" className={activeClass}>
+                                <GrAnnounce size={24} />
+                                <span className='label font-semibold'>Announcements</span>
+                            </NavLink>
+                        </li>
                 </ul>
             </nav>
         </aside>

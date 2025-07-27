@@ -366,7 +366,9 @@ const LongTermLeaveRequest = () => {
                 </div>
                 <div className="flex justify-center items-center mt-3">
                     <button className="bg-soft-green btn text-white border-none mr-3 w-[120px] py-2" onClick={requestLeave}>Request</button>
-                    <button className="bg-gray-500  btn text-white border-none w-[120px] py-2" onClick={goToListPage}>Cancel</button>
+                    {authUser.role === AUTH_ROLES.ADMIN && (
+                        <button className="bg-gray-500  btn text-white border-none w-[120px] py-2" onClick={goToListPage}>Cancel</button>
+                    )}
                 </div>
             </div>
         </>

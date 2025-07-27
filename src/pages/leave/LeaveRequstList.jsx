@@ -7,9 +7,12 @@ import { useNavigate, NavLink } from "react-router-dom"
 import Breadcrumbs from "../../components/Breadcrumbs"
 import Loading from "../../components/common/Loading"
 import Pagination from '../../components/common/Pagination'
+import DeleteConfirmModal from '../../components/common/DeleteConfirmModal'
 
 // icons
 import { IoAddCircle } from "react-icons/io5"
+import { FaEdit } from "react-icons/fa"
+import { RiDeleteBin5Line } from "react-icons/ri"
 
 // axios instance
 import axiosInstance from '../../api/axiosInstance'
@@ -95,6 +98,18 @@ const LeaveRequestList = () => {
     const [leaveRequests, setLeaveRequests] = useState([])
     const [pagination, setPagination] = useState(null)
 
+    const [deleteModalInfo, setDeleteModalInfo] = useState({
+        visible: false,
+        data: null
+    })
+
+    const clearSearchOptions = () => {
+        setSelectedEmp('')
+        setSelectedPeriod('')
+        setSelectedSort('')
+        setSelectedSort('')
+    }
+
     const showToast = (type = "success", message) => {
         if (type === "success") {
             toast.success(message)
@@ -152,15 +167,15 @@ const LeaveRequestList = () => {
             payload.sortBy = sort_by
         }
 
-        if(sort_order) {
+        if (sort_order) {
             payload.sortOrder = sort_order
         }
 
-        if(page) {
+        if (page) {
             payload.page = page
         }
 
-        if(limit) {
+        if (limit) {
             payload.limit = limit
         }
 
@@ -188,6 +203,12 @@ const LeaveRequestList = () => {
         })
     }
 
+    const onEditLeave = (index) => {
+        if (index < 0 || index >= leaveRequests.length) return
+        const leave = leaveRequests[index]
+        navigate(`/leaveEdit/${leave._id}`)
+    }
+
     const filterLeaveRequest = () => {
         fetchLeaveRequests({
             page: 1,
@@ -198,12 +219,61 @@ const LeaveRequestList = () => {
         })
     }
 
+    const closeDeleteModal = () => {
+        setDeleteModalInfo(prev => ({
+            ...prev,
+            visible: false,
+            data: null
+        }))
+    }
+
+    const openDeleteModal = (index) => {
+        if (index < 0 || index >= leaveRequests.length) return
+        const leaveRequest = leaveRequests[index]
+
+        console.log(leaveRequest)
+        setDeleteModalInfo(prev => ({
+            ...prev,
+            visible: true,
+            data: leaveRequest
+        }))
+    }
+
+    const deleteLeaveRequest = async () => {
+        const leaveId = deleteModalInfo.data._id
+        closeDeleteModal()
+        try {
+            await axiosInstance.delete(`/leave/delete/${leaveId}`)
+            showToast("success", "Successfully Deleted Leave Request")
+            clearSearchOptions()
+            fetchLeaveRequests({
+                page: 1,
+                limit: pagination.limit
+            })
+        } catch (error) {
+            if (error.response) {
+                const message = error.response.data.message
+                showToast("error", message)
+            } else {
+                showToast("error", error.message)
+            }
+        }
+    }
+
     useEffect(() => {
         fetchEmployeeOptions()
         fetchLeaveRequests()
     }, [])
     return (
         <>
+            {/* Confirm Modal */}
+            {deleteModalInfo.visible && (
+                <DeleteConfirmModal
+                    cancel={closeDeleteModal}
+                    confirm={deleteLeaveRequest}
+                />
+            )}
+
             {/* Toast Container */}
             <ToastContainer
                 position="top-right"
@@ -286,11 +356,12 @@ const LeaveRequestList = () => {
                                     <th>Status</th>
                                     <th>Reason</th>
                                     <th>Requested At</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody className="text-gray-700 font-normal">
                                 {leaveRequests.map((leave, index) => {
-                                    const period = PERIOD_OPTIONS.filter(option => option.value == leave.period )[0]
+                                    const period = PERIOD_OPTIONS.filter(option => option.value == leave.period)[0]
                                     const status = STATUS_OPTIONS.filter(option => option.value == leave.status)[0]
                                     return (
                                         <tr key={leave._id} className="hover:bg-gray-50 border-b border-[#e6e5e5] font-normal">
@@ -299,11 +370,17 @@ const LeaveRequestList = () => {
                                                 <NavLink to={`/leaveDetail/${leave._id}`} className="underline">{leave.employee?.employee_id}</NavLink>
                                             </td>
                                             <td>{leave.employee?.name}</td>
-                                            <td>{moment(leave.date).format('YYYY/MM/DD')}</td>
+                                            <td>{moment(leave.date).format('DD/MM/YYYY')}</td>
                                             <td>{period.label}</td>
                                             <td>{status.label}</td>
                                             <td>{leave.reason}</td>
                                             <td>{moment(leave.createdAt).format('YYYY/MM/DD')}</td>
+                                            <td>
+                                                <div className='flex space-x-3'>
+                                                    <button><FaEdit size={18} className='text-[#25a8fa] cursor-pointer' onClick={() => onEditLeave(index)} /></button>
+                                                    <button><RiDeleteBin5Line size={18} className='text-[#f73643] cursor-pointer' onClick={() => openDeleteModal(index)}/></button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     )
                                 })}
