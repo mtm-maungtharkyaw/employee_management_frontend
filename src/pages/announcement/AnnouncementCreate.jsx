@@ -46,6 +46,9 @@ const AnnouncementCreate = () => {
                 content
             })
             showToast("success", "Successfully Posted")
+            setTimeout(() => {
+                goToListPage()
+            }, 600)
         } catch (error) {
             console.error(error)
             if (error.response) {
@@ -57,9 +60,6 @@ const AnnouncementCreate = () => {
             }
         } finally {
             setIsLoading(false)
-            setTimeout(() => {
-                goToListPage()
-            }, 600)
         }
     }
 

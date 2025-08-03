@@ -5,6 +5,7 @@ const Modal = ({
   error,
   onChangeName,
   onChangeDescription,
+  onChangeSalary,
   onSubmit,
   onClose,
   isEdit = false
@@ -13,17 +14,17 @@ const Modal = ({
     <div className="create-modal w-full h-full bg-black/20 flex justify-center items-center absolute top-0 left-0 z-50">
       <div className="bg-white rounded-sm p-5 w-[450px]">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">{isEdit ? "Update Department" : "Create Department" }</h2>
+          <h2 className="text-lg font-semibold">{isEdit ? "Update Position" : "Create Position" }</h2>
           <button onClick={onClose}>
             <IoMdClose size={20} />
           </button>
         </div>
 
         <div className="mb-5">
-          <label className="block text-sm font-medium label">Department Name</label>
+          <label className="block text-sm font-medium label">Position Name</label>
           <input
             type="text"
-            placeholder="Department Name"
+            placeholder="name"
             className="input border border-[#9c9c9c] bg-white w-full mt-1 p-2 rounded"
             value={form.name}
             onChange={(e) => onChangeName(e.target.value)}
@@ -34,10 +35,24 @@ const Modal = ({
         </div>
 
         <div className="mb-5">
-          <label className="block text-sm font-medium label">Department Description</label>
+          <label className="block text-sm font-medium label">Basic Salary</label>
           <input
             type="text"
-            placeholder="Department Description"
+            placeholder="basic salary"
+            className="input border border-[#9c9c9c] bg-white w-full mt-1 p-2 rounded"
+            value={form.salary}
+            onChange={(e) => onChangeSalary(e.target.value)}
+          />
+          {error?.salary && (
+            <p className="text-red-500 text-sm mt-1">{error.salary}</p>
+          )}
+        </div>
+
+        <div className="mb-5">
+          <label className="block text-sm font-medium label">Position Description</label>
+          <input
+            type="text"
+            placeholder="description"
             className="input border border-[#9c9c9c] bg-white w-full mt-1 p-2 rounded"
             value={form.description}
             onChange={(e) => onChangeDescription(e.target.value)}

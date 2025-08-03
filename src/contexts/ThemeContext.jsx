@@ -29,5 +29,5 @@ export const ThemeProvider = ({ children }) => {
         <ThemeContext.Provider value={{ isSidebarOpen, toggleSidebar }}>
             {children}
         </ThemeContext.Provider>
-    );
-};
+    )
+}

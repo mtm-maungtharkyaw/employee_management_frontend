@@ -26,23 +26,9 @@ import { validateData } from "../../utils/helper"
 
 // constants
 import { AUTH_ROLES } from "../../constants/role"
+import { LEAVE_TYPES, PERIOD_OPTIONS } from "../../constants/constant"
 
 import { useAuth } from "../../contexts/AuthContext"
-
-const PERIOD_OPTIONS = [
-    {
-        label: 'Morning',
-        value: 'morning'
-    },
-    {
-        label: 'Evening',
-        value: 'afternoon'
-    },
-    {
-        label: 'Full',
-        value: 'full_day'
-    }
-]
 
 const SingleLeaveRequest = () => {
     const navigate = useNavigate()
@@ -52,6 +38,7 @@ const SingleLeaveRequest = () => {
     const [selectedEmp, setSelectedEmp] = useState(null)
     const [date, setDate] = useState('')
     const [period, setPeriod] = useState('')
+    const [leaveType, setLeaveType] = useState('')
     const [reason, setReason] = useState('')
     const [errors, setErrors] = useState(null)
 
@@ -106,7 +93,8 @@ const SingleLeaveRequest = () => {
         const data = {
             date,
             reason,
-            period
+            period,
+            leaveType
         }
 
         let validationSchema = Joi.object({
@@ -119,6 +107,9 @@ const SingleLeaveRequest = () => {
             period: Joi.string().required().messages({
                 "string.empty": "Period is required.",
             }),
+            leaveType: Joi.string().required().messages({
+                "string.empty": "Leave Type is required.",
+            })
         })
 
         if (authUser.role === AUTH_ROLES.ADMIN) {
@@ -143,7 +134,8 @@ const SingleLeaveRequest = () => {
             const payload = {
                 reason: reason,
                 period: period,
-                date: moment(date).toISOString()
+                date: moment(date).toISOString(),
+                leave_type: leaveType
             }
 
             if (authUser.role === AUTH_ROLES.ADMIN) {
@@ -259,15 +251,16 @@ const SingleLeaveRequest = () => {
                                 disabled={true}
                             />
                         )}
-
-                        <Input
+                        
+                        <SelectBox
                             label="Leave Type"
                             name="leave_type"
+                            options={LEAVE_TYPES}
                             containerClassName="mb-5"
                             labelClassName="text-[#5c5c5c] text-sm"
-                            inputClassName="border-b border-b-[#9c9c9c] dark-blue"
-                            value="Single Leave"
-                            disabled={true}
+                            value={leaveType}
+                            onChange={setLeaveType}
+                            errorMessage={errors?.leaveType}
                         />
 
                         <Input

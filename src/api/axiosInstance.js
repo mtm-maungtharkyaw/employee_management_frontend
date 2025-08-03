@@ -11,10 +11,15 @@ const axiosInstance = axios.create({
 })
 
 let logoutHandler = null;
+let clearPaymentTokenHandler = null
 
 // Function to set the logout handler form AuthProvider
 axiosInstance.setLogoutHandler = (handler) => {
     logoutHandler = handler
+}
+
+axiosInstance.setClearPaymentAccessTokenHandler = (handler) => {
+    clearPaymentTokenHandler = handler
 }
 
 // Request Interceptor
@@ -49,9 +54,17 @@ axiosInstance.interceptors.response.use(
                 logoutHandler()
                 console.log("successfully deleted both auth global state and localstorage")
             } else {
-                localStorage.removeItem('authToken');
+                localStorage.removeItem('authToken')
                 delete axiosInstance.defaults.headers.common['Authorization']
                 console.warn("No logout handler set in axiosInstance, manually clearing token.")
+            }
+
+            if(clearPaymentTokenHandler) {
+                clearPaymentTokenHandler()
+                console.log("successfully deleted payment access token")
+            } else {
+                localStorage.removeItem('paymentAccessToken')
+                console.warn("manully deleted")
             }
             return Promise.reject(error);
         }

@@ -267,9 +267,8 @@ const EmployeeEdit = () => {
     const fetchPostionOptions = async () => {
         try {
             const { options } = await axiosInstance.get('/position/options')
-            console.log(options)
             if (options.length > 0) {
-                setPositionOptions(options)
+                setPositionOptions(options.map(data => ({ label: data.name, value: data._id })))
             }
         } catch (error) {
             if (error.response) {

@@ -14,6 +14,7 @@ import { FaCaretDown } from "react-icons/fa6";
 // theme context
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useOtp } from '../contexts/OtpContext';
 
 // constants
 import { AUTH_ROLES } from '../constants/role';
@@ -21,6 +22,8 @@ import { AUTH_ROLES } from '../constants/role';
 export default function Header() {
     const themeCtx = useTheme()
     const authCtx = useAuth()
+    const optCtx = useOtp()
+
     const [showLoading, setShowLoading] = useState(false)
 
     const logout = () => {
@@ -31,6 +34,7 @@ export default function Header() {
         setTimeout(() => {
             setShowLoading(false)
             authCtx.logout()
+            optCtx.clearAccessToken()
         }, delay);
     }
 

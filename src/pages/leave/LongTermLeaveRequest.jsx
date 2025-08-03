@@ -25,6 +25,7 @@ import { validateData } from "../../utils/helper"
 
 // constants
 import { AUTH_ROLES } from "../../constants/role"
+import { LEAVE_TYPES } from "../../constants/constant"
 
 import { useAuth } from "../../contexts/AuthContext"
 
@@ -37,6 +38,7 @@ const LongTermLeaveRequest = () => {
     const [fromDate, setFromDate] = useState('')
     const [toDate, setToDate] = useState('')
     const [reason, setReason] = useState('')
+    const [leaveType, setLeaveType] = useState('')
     const [leaveDays, setLeaveDays] = useState([])
     const [errors, setErrors] = useState(null)
 
@@ -88,7 +90,8 @@ const LongTermLeaveRequest = () => {
         const data = {
             fromDate,
             toDate,
-            reason
+            reason,
+            leaveType
         }
 
         let validationSchema = Joi.object({
@@ -101,6 +104,9 @@ const LongTermLeaveRequest = () => {
             reason: Joi.string().required().messages({
                 "string.empty": "Reason is required.",
             }),
+            leaveType: Joi.string().required().messages({
+                "string.empty": "Leave Type is required.",
+            })
         })
 
         if (authUser.role === AUTH_ROLES.ADMIN) {
@@ -147,6 +153,7 @@ const LongTermLeaveRequest = () => {
                 start_date: moment(fromDate).toISOString(),
                 end_date: moment(toDate).toISOString(),
                 reason: reason,
+                leave_type: leaveType
             }
 
             if (authUser.role === AUTH_ROLES.ADMIN) {
@@ -263,16 +270,6 @@ const LongTermLeaveRequest = () => {
                         )}
 
                         <Input
-                            label="Leave Type"
-                            name="leave_type"
-                            containerClassName="mb-5"
-                            labelClassName="text-[#5c5c5c] text-sm"
-                            inputClassName="border-b border-b-[#9c9c9c] dark-blue"
-                            value="Long Term Leave"
-                            disabled={true}
-                        />
-
-                        <Input
                             type="date"
                             label="Request Date"
                             name="request_date"
@@ -282,6 +279,18 @@ const LongTermLeaveRequest = () => {
                             value={moment().format('YYYY-MM-DD')}
                             disabled={true}
                         />
+
+                        <SelectBox
+                            label="Leave Type"
+                            name="leave_type"
+                            options={LEAVE_TYPES}
+                            containerClassName="mb-5"
+                            labelClassName="text-[#5c5c5c] text-sm"
+                            value={leaveType}
+                            onChange={setLeaveType}
+                            errorMessage={errors?.leaveType}
+                        />
+
                     </div>
                     <div>
                         <Input

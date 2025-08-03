@@ -23,7 +23,7 @@ import axiosInstance from "../../api/axiosInstance"
 import Joi from 'joi';
 
 // helper
-import { validateData } from '../../utils/helper';
+import { validateData } from '../../utils/helper'
 
 const BREADCRUMB_ITEMS = [{
     label: "Department"
@@ -263,7 +263,6 @@ const Department = () => {
     }
 
     useEffect(() => {
-        showToast()
         fetchDepartments(pagination.page, pagination.limit)
     }, [])
 

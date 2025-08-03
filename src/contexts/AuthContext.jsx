@@ -14,10 +14,6 @@ export const AuthProvider = ({ children }) => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   useEffect(() => {
-    console.log(authUser)
-  }, [authUser])
-
-  useEffect(() => {
     const savedToken = localStorage.getItem("token")
     const savedUser = JSON.parse(localStorage.getItem("authUser"))
 
@@ -31,7 +27,6 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const login = (user, token) => {
-    console.log("Logout")
     setAuthUser(user)
     setToken(token)
     localStorage.setItem("authUser", JSON.stringify(user))

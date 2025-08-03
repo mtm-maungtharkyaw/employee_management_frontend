@@ -135,7 +135,7 @@ const EmployeeProfile = () => {
                                         containerClassName="mb-3"
                                         labelClassName="text-[#5c5c5c] text-sm"
                                         inputClassName="border-0 border-b border-b-[#9c9c9c]"
-                                        value={employee?.position}
+                                        value={employee?.position?.name}
                                         readOnly={true}
                                     />
                                     {/* Employee Department */}

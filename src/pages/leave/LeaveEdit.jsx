@@ -19,13 +19,10 @@ import { ToastContainer, toast } from 'react-toastify'
 import moment from 'moment'
 
 // Joi
-import Joi, { options } from "joi"
+import Joi from "joi"
 
 // helper
 import { validateData } from "../../utils/helper"
-
-// constants
-import { AUTH_ROLES } from "../../constants/role"
 
 import { useAuth } from "../../contexts/AuthContext"
 
@@ -36,35 +33,12 @@ const BREADCRUMB_ITEMS = [{
     label: "Leave Edit"
 }]
 
-const PERIOD_OPTIONS = [
-    {
-        label: 'Morning',
-        value: 'morning'
-    },
-    {
-        label: 'Evening',
-        value: 'afternoon'
-    },
-    {
-        label: 'Full',
-        value: 'full_day'
-    }
-]
-
-const STATUS_OPTIONS = [
-    {
-        label: "Pending",
-        value: "pending"
-    },
-    {
-        label: "Approved",
-        value: "approved"
-    },
-    {
-        label: "Rejected",
-        value: "rejected"
-    }
-]
+// constants
+import { 
+    PERIOD_OPTIONS, 
+    LEAVE_STATUS_OPTIONS,
+    LEAVE_TYPES
+} from "../../constants/constant"
 
 const LeaveEdit = () => {
     const { id } = useParams()
@@ -129,6 +103,13 @@ const LeaveEdit = () => {
         }))
     }
 
+    const onChangeLeaveType = (type) => {
+        setLeaveDetail(prev => ({
+            ...prev,
+            type: type
+        }))
+    }
+
     const goToListPage = () => {
         navigate('/leaveRequestList')
     }
@@ -138,7 +119,8 @@ const LeaveEdit = () => {
         const data = {
                 status: leaveDetail.status,
                 period: leaveDetail.period,
-                reason: leaveDetail.reason
+                reason: leaveDetail.reason,
+                type: leaveDetail.type
             }
 
         let validationSchema = Joi.object({
@@ -151,6 +133,9 @@ const LeaveEdit = () => {
             period: Joi.string().required().messages({
                 "string.empty": "Period is required.",
             }),
+            type: Joi.string().required().messages({
+                            "string.empty": "Leave Type is required.",
+                        })
         })
 
         const validationErrors = validateData(validationSchema, data)
@@ -162,7 +147,13 @@ const LeaveEdit = () => {
 
         setIsLoading(true)
         try {
-            await axiosInstance.put(`/leave/update/${id}`, data)
+            const payload = {
+                status: leaveDetail.status,
+                period: leaveDetail.period,
+                reason: leaveDetail.reason,
+                leave_type: leaveDetail.type
+            }
+            await axiosInstance.put(`/leave/update/${id}`, payload)
             showToast("success", "Successfully Updated")
         } catch (error) {
             if (error.response) {
@@ -250,9 +241,10 @@ const LeaveEdit = () => {
                             onChange={onChangePeriod}
                             errorMessage={errors?.period}
                         />
+                        
                         <SelectBox
                             label="Status"
-                            options={STATUS_OPTIONS}
+                            options={LEAVE_STATUS_OPTIONS}
                             name="status"
                             containerClassName="mb-5"
                             labelClassName="text-[#5c5c5c] text-sm"
@@ -260,6 +252,18 @@ const LeaveEdit = () => {
                             onChange={onChangeStatus}
                             errorMessage={errors?.status}
                         />
+
+                        <SelectBox
+                            label="Leave Type"
+                            options={LEAVE_TYPES}
+                            name="status"
+                            containerClassName="mb-5"
+                            labelClassName="text-[#5c5c5c] text-sm"
+                            value={leaveDetail?.type}
+                            onChange={onChangeLeaveType}
+                            errorMessage={errors?.type}
+                        />
+
                         <div className="mb-5 form-control w-full">
                             <div className="flex items-start justify-between">
                                 <div>

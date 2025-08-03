@@ -22,28 +22,12 @@ import { ToastContainer, toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 
 // validation
-import Joi, { options } from "joi"
+import Joi from "joi"
+
+// constants
+import { GENDER_OPTIONS, MARITAL_STATUS_OPTIONS } from "../../constants/constant"
 
 const BREADCRUMB_ITEMS = [{ label: "Employee", to: "/employees" }, { label: "Add" }]
-
-const genderOptions = [
-    {
-        label: 'Male',
-        value: 'male'
-    },
-    {
-        label: 'Female',
-        value: 'female'
-    }
-]
-
-const maritalStatusOptions = [
-    { value: 'single', label: 'Single' },
-    { value: 'married', label: 'Married' },
-    { value: 'divorced', label: 'Divorced' },
-    { value: 'widowed', label: 'Widowed' },
-    { value: 'separated', label: 'Separated' },
-]
 
 const EmployeeCreate = () => {
     const navigate = useNavigate()
@@ -223,9 +207,8 @@ const EmployeeCreate = () => {
     const fetchPostionOptions = async () => {
         try {
             const { options } = await axiosInstance.get('/position/options')
-            console.log(options)
             if(options.length > 0) {
-                setPositionOptions(options)
+                setPositionOptions(options.map(data => ({ label: data.name, value: data._id })))
             }
         } catch (error) {
             if (error.response) {
@@ -444,7 +427,7 @@ const EmployeeCreate = () => {
                             {/* Employee Gender */}
                             <SelectBox
                                 label="Select Gender"
-                                options={genderOptions}
+                                options={GENDER_OPTIONS}
                                 name="gender"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"
@@ -456,7 +439,7 @@ const EmployeeCreate = () => {
                             {/* Employee MaritalStatus */}
                             <SelectBox
                                 label="Select Marital Status"
-                                options={maritalStatusOptions}
+                                options={MARITAL_STATUS_OPTIONS}
                                 name="marital"
                                 containerClassName="mb-3"
                                 labelClassName="text-[#5c5c5c] text-sm"

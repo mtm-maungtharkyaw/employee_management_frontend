@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react"
 
+// react router dom
+import { NavLink } from "react-router-dom"
+
 // components
 import Breadcrumbs from "../../components/Breadcrumbs"
 import Loading from "../../components/common/Loading"
-import Input from "../../components/employee/Input"
-import SelectBox from "../../components/employee/SelectBox"
 
 // axios instance
 import axiosInstance from '../../api/axiosInstance'
@@ -15,41 +16,12 @@ import { ToastContainer, toast } from 'react-toastify'
 // moment
 import moment from 'moment'
 
-// Joi
-import Joi from "joi"
-
-// helper
-import { validateData } from "../../utils/helper"
-
 // constants
-import { AUTH_ROLES } from "../../constants/role"
-
-import { useAuth } from "../../contexts/AuthContext"
+import { LEAVE_TYPES, PERIOD_OPTIONS } from "../../constants/constant"
 
 const BREADCRUMB_ITEMS = [{
     label: "Leave History"
 }]
-
-const PERIOD_OPTIONS = [
-    {
-        label: 'Morning',
-        value: 'morning'
-    },
-    {
-        label: 'Evening',
-        value: 'afternoon'
-    },
-    {
-        label: 'Full',
-        value: 'full_day'
-    }
-]
-
-const LEAVE_STATUSES = {
-    PENDING: 'pending',
-    APPROVED: 'approved',
-    REJECTED: 'rejected'
-}
 
 const LeaveHistory = () => {
     const [fromDate, setFromDate] = useState('')
@@ -86,6 +58,14 @@ const LeaveHistory = () => {
         setFromDate(fromStr)
         setToDate(toStr)
         fetchLeaveRequest(fromStr, toStr, 1, 10)
+    }
+
+    const showToast = (type = "success", message) => {
+        if (type === "success") {
+            toast.success(message)
+        } else if (type === "error") {
+            toast.error(message)
+        }
     }
 
     const fetchLeaveRequest = async (from, to, page = 1, limit = 10) => {
@@ -192,9 +172,10 @@ const LeaveHistory = () => {
                                     <th>Name</th>
                                     <th>Leave Date</th>
                                     <th>Period</th>
-                                    <th>Requested At</th>
                                     <th>Status</th>
+                                    <th>Leave Type</th>
                                     <th>Leave Reason</th>
+                                    <th>Requested At</th>
                                 </tr>
                             </thead>
                             <tbody className="text-gray-700">
@@ -208,17 +189,20 @@ const LeaveHistory = () => {
                                         period = period.length > 0 ? period[0].label : ''
                                         const requestedAt = moment(leaveDay.createdAt).format('DD/MM/YYYY')
                                         const status = leaveDay.status
+                                        let leaveType = LEAVE_TYPES.filter(type => type.value === leaveDay.type)
+                                        leaveType = leaveType.length > 0 ? leaveType[0].label : ''
                                         const reason = leaveDay.reason
                                         return (
                                             <tr key={leaveDay._id} className="hover:bg-gray-50 border-b border-[#e6e5e5]">
                                                 <th>{id}</th>
-                                                <td>{employee_id}</td>
+                                                <td><NavLink to={`/leaveDetail/${leaveDay._id}`} className="underline">{employee_id}</NavLink></td>
                                                 <td>{name}</td>
                                                 <td>{date}</td>
                                                 <td>{period}</td>
-                                                <td>{requestedAt}</td>
                                                 <td className="uppercase">{status}</td>
+                                                <td>{leaveType}</td>
                                                 <td>{reason}</td>
+                                                <td>{requestedAt}</td>
                                             </tr>
                                         )
                                     })

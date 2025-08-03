@@ -23,66 +23,19 @@ import { ToastContainer, toast } from 'react-toastify'
 // moment
 import moment from 'moment'
 
-// Joi
-import Joi from "joi"
-
-// helper
-import { validateData } from "../../utils/helper"
+import { useAuth } from "../../contexts/AuthContext"
 
 // constants
-import { AUTH_ROLES } from "../../constants/role"
-
-import { useAuth } from "../../contexts/AuthContext"
-import label from "daisyui/components/label"
+import { 
+    LEAVE_STATUS_OPTIONS, 
+    PERIOD_OPTIONS, 
+    LEAVE_SORT_OPTIONS,
+    LEAVE_TYPES
+} from "../../constants/constant"
 
 const BREADCRUMB_ITEMS = [{
     label: "Leave Request List"
 }]
-
-const PERIOD_OPTIONS = [
-    {
-        label: 'Morning',
-        value: 'morning'
-    },
-    {
-        label: 'Evening',
-        value: 'afternoon'
-    },
-    {
-        label: 'Full',
-        value: 'full_day'
-    }
-]
-
-const STATUS_OPTIONS = [
-    {
-        label: 'Pending',
-        value: 'pending'
-    },
-    {
-        label: 'Approved',
-        value: 'approved',
-    },
-    {
-        label: 'Rejected',
-        value: 'rejected'
-    }
-]
-
-const SORT_OPTIONS = [
-    {
-        label: 'Created Date',
-        value: 'createdAt'
-    },
-    {
-        label: 'Status',
-        value: 'status'
-    },
-    {
-        label: 'Period',
-        value: 'period'
-    }
-]
 
 const LeaveRequestList = () => {
     const { authUser } = useAuth()
@@ -319,7 +272,7 @@ const LeaveRequestList = () => {
                         <label htmlFor="" className='block mb-1'>Status</label>
                         <select id='' className="select bg-white w-[200px]" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
                             <option value="">All</option>
-                            {STATUS_OPTIONS.map((option) => (
+                            {LEAVE_STATUS_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>{option.label}</option>
                             ))}
                         </select>
@@ -328,7 +281,7 @@ const LeaveRequestList = () => {
                         <label htmlFor="" className='block mb-1'>Sort By</label>
                         <select id='' className="select bg-white w-[200px]" value={selectedSort} onChange={(e) => setSelectedSort(e.target.value)}>
                             <option value="">All</option>
-                            {SORT_OPTIONS.map((option) => (
+                            {LEAVE_SORT_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>{option.label}</option>
                             ))}
                         </select>
@@ -354,6 +307,7 @@ const LeaveRequestList = () => {
                                     <th>Leave Date</th>
                                     <th>Period</th>
                                     <th>Status</th>
+                                    <th>Leave Type</th>
                                     <th>Reason</th>
                                     <th>Requested At</th>
                                     <th>Action</th>
@@ -362,7 +316,8 @@ const LeaveRequestList = () => {
                             <tbody className="text-gray-700 font-normal">
                                 {leaveRequests.map((leave, index) => {
                                     const period = PERIOD_OPTIONS.filter(option => option.value == leave.period)[0]
-                                    const status = STATUS_OPTIONS.filter(option => option.value == leave.status)[0]
+                                    const status = LEAVE_STATUS_OPTIONS.filter(option => option.value == leave.status)[0]
+                                    const type = LEAVE_TYPES.filter(type => type.value == leave.type)[0]
                                     return (
                                         <tr key={leave._id} className="hover:bg-gray-50 border-b border-[#e6e5e5] font-normal">
                                             <th>{(pagination.page - 1) * pagination.limit + index + 1}</th>
@@ -371,8 +326,9 @@ const LeaveRequestList = () => {
                                             </td>
                                             <td>{leave.employee?.name}</td>
                                             <td>{moment(leave.date).format('DD/MM/YYYY')}</td>
-                                            <td>{period.label}</td>
-                                            <td>{status.label}</td>
+                                            <td>{period?.label}</td>
+                                            <td>{status?.label}</td>
+                                            <td>{type?.label}</td>
                                             <td>{leave.reason}</td>
                                             <td>{moment(leave.createdAt).format('YYYY/MM/DD')}</td>
                                             <td>

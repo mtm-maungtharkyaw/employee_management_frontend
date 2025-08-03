@@ -269,7 +269,7 @@ export default function Employee() {
                                         <td><NavLink to={employee.employee_id} className="underline">{employee.employee_id}</NavLink></td>
                                         <td>{employee.name}</td>
                                         <td>{employee.department?.name}</td>
-                                        <td>{employee.position}</td>
+                                        <td>{employee.position?.name}</td>
                                         <td>{formatDate(employee.join_date)}</td>
                                         <td>{employee.personal?.gender}</td>
                                         {authCtx.authUser?.role === AUTH_ROLES.ADMIN && (

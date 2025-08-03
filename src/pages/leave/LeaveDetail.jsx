@@ -17,31 +17,17 @@ import { ToastContainer, toast } from 'react-toastify'
 // moment
 import moment from 'moment'
 
-// Joi
-import Joi, { options } from "joi"
-
-// helper
-import { validateData } from "../../utils/helper"
-
 // constants
 import { AUTH_ROLES } from "../../constants/role"
 
 import { useAuth } from "../../contexts/AuthContext"
 
-const PERIOD_OPTIONS = [
-    {
-        label: 'Morning',
-        value: 'morning'
-    },
-    {
-        label: 'Evening',
-        value: 'afternoon'
-    },
-    {
-        label: 'Full',
-        value: 'full_day'
-    }
-]
+// constants
+import { 
+    PERIOD_OPTIONS,
+    LEAVE_STATUS_OPTIONS,
+    LEAVE_TYPES
+} from "../../constants/constant"
 
 const LeaveDetail = () => {
     const { id } = useParams()
@@ -57,7 +43,10 @@ const LeaveDetail = () => {
         setIsLoading(true)
         try {
             const leave = await axiosInstance.get(`/leave/${id}`)
+            console.log(leave)
             const period = PERIOD_OPTIONS.filter(option => option.value === leave.period)[0]
+            const status = LEAVE_STATUS_OPTIONS.filter(option => option.value === leave.status)[0]
+            const type = LEAVE_TYPES.filter(type => type.value === leave.type)[0]
             const frmtLeave = {
                 id: leave._id,
                 employee: {
@@ -66,11 +55,11 @@ const LeaveDetail = () => {
                 },
                 date: leave.date ? moment(leave.date).format('DD/MM/YYYY') : '',
                 period: period ? period.label : '',
-                status: leave.status,
+                status: status ? status.label : '',
+                type: type ? type.label : '',
                 reason: leave.reason
             }
             setLeaveDetail(frmtLeave)
-            console.log(frmtLeave)
         } catch (error) {
             if (error.response) {
                 const message = error.response.data.message
@@ -162,8 +151,7 @@ const LeaveDetail = () => {
                             value={leaveDetail?.date}
                             readOnly={true}
                         />
-                    </div>
-                    <div>
+
                         {/* Period */}
                         <Input
                             label="Period"
@@ -172,6 +160,18 @@ const LeaveDetail = () => {
                             labelClassName="text-[#5c5c5c] text-sm"
                             inputClassName="border-0 border-b border-b-[#9c9c9c]"
                             value={leaveDetail?.period}
+                            readOnly={true}
+                        />
+                    </div>
+                    <div>
+                        {/* Type */}
+                        <Input
+                            label="Leave Type"
+                            name="leave type"
+                            containerClassName="mb-5"
+                            labelClassName="text-[#5c5c5c] text-sm"
+                            inputClassName="border-0 border-b border-b-[#9c9c9c]"
+                            value={leaveDetail?.type}
                             readOnly={true}
                         />
 
