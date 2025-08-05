@@ -390,7 +390,7 @@ const PaymentDetail = () => {
                     </div>
                 </div>
 
-                {(paymentDetail?.net_salary) && (
+                {(paymentDetail?.net_salary !== 0) && (
                     <div className="border border-[#e6e5e5] p-3 mb-3">
                         <h2 className="text-lg font-semibold mb-5">Payment Result</h2>
                         <div className="grid grid-cols-2 gap-[100px]">

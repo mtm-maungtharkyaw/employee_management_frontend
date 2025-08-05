@@ -155,7 +155,9 @@ const LeaveEdit = () => {
             }
             await axiosInstance.put(`/leave/update/${id}`, payload)
             showToast("success", "Successfully Updated")
+            goToListPage()
         } catch (error) {
+            console.error(error)
             if (error.response) {
                 const message = error.response.data.message
                 showToast("error", message)
@@ -164,7 +166,6 @@ const LeaveEdit = () => {
             }
         } finally {
             setIsLoading(false)
-            goToListPage()
         }
     }
 

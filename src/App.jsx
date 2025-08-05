@@ -41,6 +41,7 @@ import PayrollOverview from './pages/payroll/PayrollOverview'
 import PaymentDetail from './pages/payroll/PaymentDetail'
 import EmployeePaymentView from './pages/payroll/EmployeePaymentView'
 import OtpVerification from './pages/otp/OtpVerificiation'
+import PaymentHistories from './pages/payroll/paymentHistories'
 
 // layout
 import AuthLayout from './components/AuthLayout'
@@ -111,6 +112,7 @@ const App = () => {
 
 								<Route path="/payroll" element={<PayrollOverview />} />
 								<Route path="/payroll/detail/:employeeId" element={<PaymentDetail />} />
+								<Route path="/payroll/histories" element={<PaymentHistories />} />
 
 								<Route element={<VerifiedPaymentAccessGuard />}>
 									<Route path="/employeePaymentShow" element={<EmployeePaymentView />} />

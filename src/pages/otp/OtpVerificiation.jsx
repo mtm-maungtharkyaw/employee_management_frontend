@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 // components
 import Loading from "../../components/common/Loading"
@@ -22,6 +22,8 @@ import axiosInstance from "../../api/axiosInstance"
 const OtpVerification = () => {
     const { authUser } = useAuth()
     const { setAccessToken } = useOtp()
+
+    const otpSentRef = useRef(false)
 
     const [otpCode, setOtpCode] = useState('')
     const [verificationId, setVerificationId] = useState('')
@@ -60,8 +62,8 @@ const OtpVerification = () => {
     }
 
     const verifyOtp = async () => {
-         setIsLoading(true)
-         try {
+        setIsLoading(true)
+        try {
             const employeeId = authUser?._id
             const { otpToken } = await axiosInstance.post('/payment/verifyOtp', {
                 employeeId,
@@ -83,6 +85,11 @@ const OtpVerification = () => {
     }
 
     useEffect(() => {
+        if (otpSentRef.current) {
+            return // Do not run the effect again
+        }
+        otpSentRef.current = true
+        console.log("hello")
         sentOtpCode()
     }, [])
 
@@ -114,15 +121,15 @@ const OtpVerification = () => {
                             <label htmlFor="" className="label">
                                 <span className="labe-text">Enter Code : </span>
                             </label>
-                            <input 
-                                type="text" 
+                            <input
+                                type="text"
                                 className="input w-[100px]"
                                 value={otpCode}
                                 onChange={(e) => setOtpCode(e.target.value)}
                             />
                         </div>
                         <div>
-                            <button 
+                            <button
                                 className="bg-soft-green btn text-white border-none mr-3 w-[120px] py-2" onClick={verifyOtp}
                             >Verify</button>
                         </div>
