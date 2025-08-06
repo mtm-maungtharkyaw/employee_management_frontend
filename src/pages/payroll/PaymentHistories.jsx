@@ -95,8 +95,6 @@ const PaymentHistories = () => {
         const [yearStr, monthStr] = selectedMonth.split('-')
         const year = Number(yearStr)
         const month = Number(monthStr)
-
-        console.log(year, month)
         fetchHistories({
             year,
             month,
@@ -113,10 +111,6 @@ const PaymentHistories = () => {
         })
         setSelectedMonth(now.format('YYYY-MM'))
     }, [])
-
-    useEffect(() => {
-        console.log(selectedMonth)
-    }, [selectedMonth])
 
     return (
         <>

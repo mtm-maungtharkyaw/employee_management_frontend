@@ -220,10 +220,6 @@ const AttendanceListReport = () => {
         fetchEmployeeOptions()
     }, [])
 
-    useEffect(() => {
-        console.log(attendances)
-    }, [attendances])
-
     return (
         <>
             {/* Toast Container */}

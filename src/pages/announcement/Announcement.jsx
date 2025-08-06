@@ -71,7 +71,6 @@ const Announcement = () => {
 				page,
 				limit
 			})
-			console.log(announcements)
 			setAnnouncements(announcements)
 			setPagination(pagination)
 		} catch (error) {
@@ -80,7 +79,6 @@ const Announcement = () => {
 				const message = error.response.data.message
 				showToast("error", message)
 			} else {
-				console.log("reached this")
 				showToast("error", "Something Went Wrong")
 			}
 		} finally {
@@ -104,7 +102,6 @@ const Announcement = () => {
 	}
 
 	const openDeleteModal = (index) => {
-		console.log("opening delete modal")
 		if (index < 0 || index >= announcements.length) return;
 		const annoucementToDelete = announcements[index]
 		setModalVisible(true)
@@ -131,7 +128,6 @@ const Announcement = () => {
 				const message = error.response.data.message
 				showToast("error", message)
 			} else {
-				console.log("reached this")
 				showToast("error", "Something Went Wrong")
 			}
 		} finally {
@@ -158,7 +154,6 @@ const Announcement = () => {
 				const message = error.response.data.message
 				showToast("error", message)
 			} else {
-				console.log("reached this")
 				showToast("error", "Something Went Wrong")
 			}
 		} finally {

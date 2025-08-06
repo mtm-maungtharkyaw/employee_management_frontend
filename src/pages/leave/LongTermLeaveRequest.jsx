@@ -139,9 +139,6 @@ const LongTermLeaveRequest = () => {
             }
             currentDay.add(1, 'day');
         }
-
-        console.log(requestedLeaveDays)
-
         setLeaveDays(requestedLeaveDays)
     }
 

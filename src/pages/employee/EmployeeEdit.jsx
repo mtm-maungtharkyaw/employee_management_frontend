@@ -118,7 +118,6 @@ const EmployeeEdit = () => {
         setIsLoading(true)
         try {
             const { employee } = await axiosInstance.get(`/employee/${emp_id}`)
-            console.log(employee?.employee_id)
             setEmployeeId(employee?.employee_id)
             setName(employee?.name)
             setJoinDate(employee?.join_date ? moment(employee?.join_date).format('YYYY-MM-DD') : '')
@@ -171,7 +170,6 @@ const EmployeeEdit = () => {
         })
 
         if (validationErrors) {
-            console.log(validationErrors)
             setErrors(validationErrors)
             return
         }
@@ -250,7 +248,6 @@ const EmployeeEdit = () => {
     const fetchJobTypeOptions = async () => {
         try {
             const { options } = await axiosInstance.get('/job-type/options')
-            console.log(options)
             if (options.length > 0) {
                 setJobTypeOptions(options)
             }

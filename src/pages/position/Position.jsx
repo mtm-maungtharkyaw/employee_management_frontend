@@ -169,7 +169,6 @@ const Position = () => {
                 limit,
                 name
             })
-            console.log(position_data)
             setPositions(position_data.list)
             setPagination(position_data.pagination)
         } catch (error) {
@@ -317,10 +316,6 @@ const Position = () => {
     useEffect(() => {
         fetchPositions(pagination.page, pagination.limit)
     }, [])
-
-    useEffect(() => {
-        console.log(form)
-    }, [form])
 
     return (
         <>

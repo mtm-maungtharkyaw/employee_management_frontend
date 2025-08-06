@@ -101,7 +101,7 @@ export default function Employee() {
             setEmployees(emp_data.list)
             setPagination(emp_data.pagination)
         } catch (error) {
-            console.log(error.response?.data)
+            console.error(error)
         } finally {
             setLoading(false)
         }
@@ -120,7 +120,6 @@ export default function Employee() {
                 const message = error.response.data.message
                 showToast("error", message)
             } else {
-                console.log("reached this")
                 showToast("error", "Something Went Wrong")
             }
         } finally {

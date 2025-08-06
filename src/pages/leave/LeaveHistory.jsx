@@ -80,7 +80,6 @@ const LeaveHistory = () => {
             }
 
             const { leaves, pagination } = await axiosInstance.post('/leave/by-employee', payLoad)
-            console.log(leaves)
             setLeaveDays(leaves)
             setPagination(pagination)
         } catch (error) {

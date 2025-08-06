@@ -78,7 +78,7 @@ const EmployeeWorkingHoursChart = () => {
             {!error && (
                 <>
                     <div className='flex justify-between'>
-                        <h2>Your Monthly Working Hours</h2>
+                        <h2 className='font-semibold dark-blue'>Your Monthly Working Hours</h2>
                         <div className='flex space-x-2 items-center'>
                             <div>
                                 <label htmlFor="year" className='label'>

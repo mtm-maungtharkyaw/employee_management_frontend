@@ -5,6 +5,10 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import CalendarApp from '../components/common/CalendarApp'
 import AttendanceChart from '../components/dashboard/AttendanceChart'
 import EmployeeWorkingHoursChart from '../components/dashboard/EmployeeWorkingHoursChart'
+import DepartmentListCard from '../components/dashboard/DepartmentListCard'
+import PendingLeaveCard from '../components/dashboard/PendingLeaveCard'
+import PositionCard from '../components/dashboard/PositionCard'
+import DepartmentOverviewCard from '../components/dashboard/DepartmentOverviewCard'
 
 // icons
 import { FaUsers, FaUserCheck, FaUserTimes, FaHospitalAlt } from "react-icons/fa"
@@ -19,6 +23,8 @@ import { AUTH_ROLES } from '../constants/role'
 
 import axiosInstance from '../api/axiosInstance'
 
+import moment from 'moment'
+
 
 export default function Dashboard() {
     const breadcrumb_items = [{ label: 'Dashboard' }]
@@ -27,6 +33,8 @@ export default function Dashboard() {
     const [totalEmp, setTotalEmp] = useState(0)
     const [attendancePercent, setAttendancePercent] = useState(0)
     const [absentPercent, setAbsentPercent] = useState(0)
+    const [leave, setLeave] = useState(null)
+    const [totalWorkedHour, setTotalWorkedHour] = useState(0)
 
     const getTotalEmployee = async () => {
         try {
@@ -40,10 +48,29 @@ export default function Dashboard() {
     const getTodayAttendancePercent = async () => {
         try {
             const { todayAttendancePercent } = await axiosInstance.get('/attendance/get-today-attendance')
-            console.log(todayAttendancePercent)
             const absentPercent = 100 - todayAttendancePercent
             setAttendancePercent(todayAttendancePercent)
             setAbsentPercent(absentPercent)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const getRemainingLeaves = async () => {
+        try {
+            const data = await axiosInstance.get(`/employee/${authUser?._id}/leaves`)
+            setLeave(data.leave)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const getTotalWorkingHours = async () => {
+        try {
+            const year = moment().year()
+            const month = moment().month() + 1
+            const { totalWorkedHour } = await axiosInstance.get(`/employee/${authUser._id}/working-hours/${year}/${month}`)
+            setTotalWorkedHour(totalWorkedHour)
         } catch (error) {
             console.error(error)
         }
@@ -53,6 +80,9 @@ export default function Dashboard() {
         if (authUser?.role === AUTH_ROLES.ADMIN) {
             getTotalEmployee()
             getTodayAttendancePercent()
+        } else {
+            getRemainingLeaves()
+            getTotalWorkingHours()
         }
     }, [])
 
@@ -103,7 +133,7 @@ export default function Dashboard() {
                                     </div>
                                     <div>
                                         <p>Available Casual Leave</p>
-                                        <span className='text-lg font-semibold'>10</span>
+                                        <span className='text-lg font-semibold'>{leave?.casual}</span>
                                     </div>
                                 </div>
                                 <div className='rounded-sm bg-[#fefefe] py-5 flex justify-center items-center space-x-8'>
@@ -112,7 +142,7 @@ export default function Dashboard() {
                                     </div>
                                     <div>
                                         <p>Available Sick Leave</p>
-                                        <span className='text-lg font-semibold'>10</span>
+                                        <span className='text-lg font-semibold'>{leave?.sick}</span>
                                     </div>
                                 </div>
                                 <div className='rounded-sm bg-[#fefefe] py-5 flex justify-center items-center space-x-8'>
@@ -121,7 +151,7 @@ export default function Dashboard() {
                                     </div>
                                     <div>
                                         <p>Total Working Hours</p>
-                                        <span className='text-lg font-semibold'>10</span>
+                                        <span className='text-lg font-semibold'>{totalWorkedHour}</span>
                                     </div>
                                 </div>
                             </>
@@ -129,14 +159,24 @@ export default function Dashboard() {
 
 
                     </div>
-                    <div>
-                        <div className='rounded-sm  bg-[#fefefe] p-2 px- h-[320px]'>
+                    <div className='mb-3'>
+                        <div className='rounded-sm  bg-[#fefefe] p-2 h-[320px]'>
                             {authUser?.role === AUTH_ROLES.ADMIN ? <AttendanceChart /> : <EmployeeWorkingHoursChart />}
+                        </div>
+                    </div>
+                    <div>
+                        <div className='rounded-sm  bg-[#fefefe] p-2 h-[320px]'>
+                            {authUser?.role === AUTH_ROLES.ADMIN ? <PendingLeaveCard /> : <DepartmentListCard />}
                         </div>
                     </div>
                 </div>
                 <div className='col-span-2 bg-white h-[430px] rounder-sm'>
                     <CalendarApp />
+                    <div className='mt-3'>
+                        <div className='rounded-sm  bg-[#fefefe] p-2 h-[320px]'>
+                            {authUser?.role === AUTH_ROLES.ADMIN ? <DepartmentOverviewCard /> : <PositionCard />}
+                        </div>
+                    </div>
                 </div>
             </div>
         </>

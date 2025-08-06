@@ -72,7 +72,6 @@ const SingleLeaveRequest = () => {
         try {
             const { options } = await axiosInstance.get('/employee/options')
             setEmpOptions(options)
-            console.log(options)
         } catch (error) {
             if (error.response) {
                 const message = error.response.data.message

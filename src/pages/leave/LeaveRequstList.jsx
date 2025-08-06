@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
 // react router dom
-import { useNavigate, NavLink } from "react-router-dom"
+import { useNavigate, NavLink, useLocation } from "react-router-dom"
 
 // components
 import Breadcrumbs from "../../components/Breadcrumbs"
@@ -40,6 +40,8 @@ const BREADCRUMB_ITEMS = [{
 const LeaveRequestList = () => {
     const { authUser } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
+
     const [isLoading, setIsLoading] = useState(false)
 
     const [empOptions, setEmpOptions] = useState([])
@@ -183,8 +185,6 @@ const LeaveRequestList = () => {
     const openDeleteModal = (index) => {
         if (index < 0 || index >= leaveRequests.length) return
         const leaveRequest = leaveRequests[index]
-
-        console.log(leaveRequest)
         setDeleteModalInfo(prev => ({
             ...prev,
             visible: true,
@@ -215,7 +215,10 @@ const LeaveRequestList = () => {
 
     useEffect(() => {
         fetchEmployeeOptions()
-        fetchLeaveRequests()
+
+        const status = location.state?.status
+        fetchLeaveRequests({ status })
+        setSelectedStatus(status)
     }, [])
     return (
         <>

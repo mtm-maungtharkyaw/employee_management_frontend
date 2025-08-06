@@ -46,11 +46,7 @@ export default function Sidebar() {
             setOpenMenu(menu);
         }
     };
-
-    useEffect(() => {
-        console.log(location.pathname);
-    }, [location.pathname]);
-
+    
     return (
         <aside className={sidebarClass}>
             <h2 className="logo">EMS</h2>

@@ -117,7 +117,7 @@ const PaymentDetail = () => {
             const payment = await axiosInstance.get(`/payment/detail/${employeeId}`)
             setPaymentDetail(payment)
         } catch (error) {
-            console.log(error)
+            console.error(error)
             if (error.response) {
                 const message = error.response.data.message
                 showToast("error", message)
@@ -177,10 +177,6 @@ const PaymentDetail = () => {
     useEffect(() => {
         fetchPayment()
     }, [])
-
-    useEffect(() => {
-        console.log(paymentDetail)
-    }, [paymentDetail])
     return (
         <>
             {/* Toast Container */}

@@ -66,7 +66,6 @@ const EmployeePaymentView = () => {
             record.gross_salary = record.total_salary_paid + calculateTotalFromObject(record.allowances)
             record.total_deductions = calculateTotalFromObject(record.deductions)
             setPaymentRecord(record)
-            console.log(record)
             showToast("Success", "Successfully Retrieved Payment Record")
         } catch (error) {
             if (error.response?.status === 403 && error.response?.data?.error?.code === 'INVALID_PAYMENT_ACCESS_TOKEN') {

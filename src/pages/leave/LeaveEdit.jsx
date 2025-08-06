@@ -69,7 +69,6 @@ const LeaveEdit = () => {
             const leave = await axiosInstance.get(`/leave/${id}`)
             leave.date = leave.date ? moment(leave.date).format('YYYY-MM-DD') : ''
             setLeaveDetail(leave)
-            console.log(leave)
         } catch (error) {
             if (error.response) {
                 const message = error.response.data.message

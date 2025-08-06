@@ -85,7 +85,6 @@ const AttendanceHistory = () => {
             };
 
             const { attendances, pagination } = await axiosInstance.post('/attendance/by-employee', payload);
-            console.log(attendances)
             setAttendances(attendances)
             setPagination(pagination)
         } catch (error) {

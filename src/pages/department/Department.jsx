@@ -237,7 +237,7 @@ const Department = () => {
         }
     }
 
-    const onPageChange = async (page) => {
+    const onPageChange = (page) => {
         fetchDepartments(page, pagination.limit, searchOptions.name)
     }
 
@@ -265,10 +265,6 @@ const Department = () => {
     useEffect(() => {
         fetchDepartments(pagination.page, pagination.limit)
     }, [])
-
-    useEffect(() => {
-        console.log(errors)
-    }, [errors])
 
     return (
         <>

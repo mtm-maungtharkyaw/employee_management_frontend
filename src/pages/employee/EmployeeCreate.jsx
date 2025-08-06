@@ -111,7 +111,6 @@ const EmployeeCreate = () => {
         })
 
         if (validationErrors) {
-            console.log(validationErrors)
             setErrors(validationErrors)
             return
         }
@@ -190,7 +189,6 @@ const EmployeeCreate = () => {
     const fetchJobTypeOptions = async () => {
         try {
             const { options } = await axiosInstance.get('/job-type/options')
-            console.log(options)
             if(options.length > 0) {
                 setJobTypeOptions(options)
             }

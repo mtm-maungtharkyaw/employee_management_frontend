@@ -44,7 +44,6 @@ const OtpVerification = () => {
             const { verificationId } = await axiosInstance.post('/payment/sendOtp', {
                 employeeId
             })
-            console.log(verificationId)
             setVerificationId(verificationId)
         } catch (error) {
             console.error(error)
@@ -89,7 +88,6 @@ const OtpVerification = () => {
             return // Do not run the effect again
         }
         otpSentRef.current = true
-        console.log("hello")
         sentOtpCode()
     }, [])
 

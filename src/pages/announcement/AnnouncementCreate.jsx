@@ -55,7 +55,6 @@ const AnnouncementCreate = () => {
                 const message = error.response.data.message
                 showToast("error", message)
             } else {
-                console.log("reached this")
                 showToast("error", "Something Went Wrong")
             }
         } finally {

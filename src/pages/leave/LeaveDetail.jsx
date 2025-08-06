@@ -23,7 +23,7 @@ import { AUTH_ROLES } from "../../constants/role"
 import { useAuth } from "../../contexts/AuthContext"
 
 // constants
-import { 
+import {
     PERIOD_OPTIONS,
     LEAVE_STATUS_OPTIONS,
     LEAVE_TYPES
@@ -43,7 +43,6 @@ const LeaveDetail = () => {
         setIsLoading(true)
         try {
             const leave = await axiosInstance.get(`/leave/${id}`)
-            console.log(leave)
             const period = PERIOD_OPTIONS.filter(option => option.value === leave.period)[0]
             const status = LEAVE_STATUS_OPTIONS.filter(option => option.value === leave.status)[0]
             const type = LEAVE_TYPES.filter(type => type.value === leave.type)[0]
@@ -88,9 +87,15 @@ const LeaveDetail = () => {
                 }
             ])
         } else if (authUser.role === AUTH_ROLES.EMPLOYEE) {
-            setBreadcrumbItems([{
-                label: "Leave Detail"
-            }])
+            setBreadcrumbItems([
+                {
+                    label: "Leave History",
+                    to: "/leaveHistory"
+                },
+                {
+                    label: "Leave Detail"
+                }
+            ])
         }
     }, [authUser.role])
 

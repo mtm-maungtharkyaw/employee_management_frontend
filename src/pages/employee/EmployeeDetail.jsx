@@ -55,7 +55,6 @@ const EmployeeDetail = () => {
             const data = await axiosInstance.get(`/employee/${emp_id}`)
             setEmployee(data.employee)
             setFullAccess(data.fullDataAccess)
-            console.log(data)
         } catch (error) {
             if (error.response) {
                 const message = error.response.data.message
