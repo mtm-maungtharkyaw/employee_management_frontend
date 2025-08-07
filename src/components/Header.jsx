@@ -5,19 +5,22 @@ import '../styles/layout.css'
 import { NavLink } from 'react-router-dom'
 
 // components
-import Loading from './common/Loading';
+import Loading from './common/Loading'
 
 // icons
 import { GiHamburgerMenu } from "react-icons/gi"
-import { FaCaretDown } from "react-icons/fa6";
+import { FaCaretDown } from "react-icons/fa6"
 
 // theme context
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
-import { useOtp } from '../contexts/OtpContext';
+import { useOtp } from '../contexts/OtpContext'
 
 // constants
-import { AUTH_ROLES } from '../constants/role';
+import { AUTH_ROLES } from '../constants/role'
+
+// images
+import defaultProfileImage from '../assets/images/default_profile.jpg'
 
 export default function Header() {
     const themeCtx = useTheme()
@@ -52,10 +55,16 @@ export default function Header() {
                     <div>
                         <div className="dropdown dropdown-end">
                             <div tabIndex={0} role="button" className="m-1 flex items-center space-x-1 cursor-pointer border-none bg-transparent p-0">
-                                <div className='w-[35px] h-[35px] bg-[#406c91] rounded-full'>
-                                    {/* <img src="" alt="" /> */}
+                                <div className='w-[35px] h-[35px] rounded-full relative overflow-hidden'>
+                                    <img
+                                        src={authCtx?.authUser?.profile ? authCtx.authUser.profile : defaultProfileImage }
+                                        alt="profile-img"
+                                        className='w-full h-full absolute top-0 left-0'
+                                    />
                                 </div>
-                                <span><FaCaretDown size={22} /></span>
+                                <span>
+                                    <FaCaretDown size={22} />
+                                </span>
                             </div>
                             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-sm z-1 w-45 p-1 shadow-sm">
                                 <li>

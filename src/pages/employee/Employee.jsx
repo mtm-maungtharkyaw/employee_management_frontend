@@ -49,7 +49,6 @@ export default function Employee() {
         isVisible: false,
         data: null
     })
-    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
 
     const navigate = useNavigate()
 

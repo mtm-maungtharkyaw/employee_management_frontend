@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 
 // components
 import Breadcrumbs from "../../components/Breadcrumbs"
@@ -7,7 +7,8 @@ import SelectBox from "../../components/employee/SelectBox"
 import Loading from "../../components/common/Loading"
 
 // icons
-import { BiSolidImageAdd } from "react-icons/bi"
+import { FiX } from 'react-icons/fi'
+import { FaEdit } from "react-icons/fa"
 
 // axios instance
 import axiosInstance from "../../api/axiosInstance"
@@ -31,6 +32,8 @@ const BREADCRUMB_ITEMS = [{ label: "Employee", to: "/employees" }, { label: "Add
 
 const EmployeeCreate = () => {
     const navigate = useNavigate()
+    const fileInputRef = useRef(null)
+
     const [departmentOptions, setDepartmentOptions] = useState([])
     const [jobTypeOptions, setJobTypeOptions] = useState([])
     const [positionOptions, setPositionOptions] = useState([])
@@ -58,6 +61,12 @@ const EmployeeCreate = () => {
     const [relation, setRelation] = useState('')
     const [contactPhone, setContactPhone] = useState('')
     const [address, setAddress] = useState('')
+    const [profile, setProfile] = useState({
+        selectedFile: null,
+        previewUrl: null
+    })
+
+
     const [errors, setErrors] = useState(null)
 
     const [isLoading, setIsLoading] = useState(false)
@@ -93,6 +102,66 @@ const EmployeeCreate = () => {
         navigate('/employees')
     }
 
+    const uploadFile = () => {
+        fileInputRef.current.click()
+    }
+
+    const handleFileChange = (event) => {
+        setErrors(prev => ({
+            ...prev,
+            profile: ''
+        }))
+        const file = event.target.files[0]
+
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                setErrors(prev => ({
+                    ...prev,
+                    profile: "Please select an image file (e.g., JPG, PNG, GIF)"
+                }))
+                setProfile({
+                    selectedFile: null,
+                    previewUrl: null
+                })
+                return
+            }
+
+            if (file.size > 5 * 1024 * 1024) { // 5 MB in bytes
+                setErrors(prev => ({
+                    ...prev,
+                    profile: 'Image size should not exceed 5MB.'
+                }))
+                setProfile({
+                    selectedFile: null,
+                    previewUrl: null
+                })
+                return;
+            }
+
+            setProfile({
+                selectedFile: file,
+                previewUrl: URL.createObjectURL(file)
+            })
+        }
+    }
+
+    const removeFileSelect = () => {
+        setProfile({
+            selectedFile: null,
+            previewUrl: null
+        })
+
+        setErrors(prev => ({
+            ...prev,
+            profile: ''
+        }))
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+        }
+    };
+
+
     const createEmployee = async () => {
         clearErrorMessages()
         const validationErrors = validateData(employeeCreateSchema, {
@@ -115,43 +184,51 @@ const EmployeeCreate = () => {
             return
         }
 
-        const employeeData = {
-            employee_id: employeeId,
-            name: name,
-            join_date: joinDate,
-            office_email: officeEmail,
-            department,
-            position,
-            job_type: jobType,
-            education: {
-                language_skill: languageSkill,
-                programming_skill: programmingSkill,
-                graduate_university: graduateUniversity,
-                graduate_degree: graduateDegree,
-            },
-            personal: {
-                dob: dob,
-                gender: gender,
-                address: address,
-                marital_status: maritalStatus,
-                nrc_no: nrcNo,
-                phone: phone,
-                email: email,
-                bank_account: bankAccount,
-                religion: religion,
-                emergency_contact: {
-                    name: contactName,
-                    phone: contactPhone,
-                    relation: relation
-                }
+        const formData = new FormData();
+
+        // 3. Append simple string fields directly
+        formData.append('employee_id', employeeId)
+        formData.append('name', name)
+        formData.append('join_date', joinDate)
+        formData.append('office_email', officeEmail)
+        formData.append('department', department)
+        formData.append('position', position)
+        formData.append('job_type', jobType)
+
+        formData.append('education', JSON.stringify({
+            language_skill: languageSkill,
+            programming_skill: programmingSkill,
+            graduate_university: graduateUniversity,
+            graduate_degree: graduateDegree,
+        }))
+
+        formData.append('personal', JSON.stringify({
+            dob: dob,
+            gender: gender,
+            address: address,
+            marital_status: maritalStatus,
+            nrc_no: nrcNo,
+            phone: phone,
+            email: email,
+            bank_account: bankAccount,
+            religion: religion,
+            emergency_contact: {
+                name: contactName,
+                phone: contactPhone,
+                relation: relation
             }
+        }))
+
+        if (profile.selectedFile) {
+            formData.append('profile', profile.selectedFile)
         }
 
         setIsLoading(true)
         const start = Date.now()
 
         try {
-            await axiosInstance.post('/employee/create', employeeData)
+            const data = await axiosInstance.post('/employee/create', formData)
+            console.log(data)
             showToast("success", "Successfully Created Employee")
             const elapsed = Date.now() - start
             const delay = Math.max(1000 - elapsed, 0)
@@ -160,12 +237,13 @@ const EmployeeCreate = () => {
                 goToEmployeeListPage()
             }, delay)
         } catch (error) {
+            console.error(error)
             setIsLoading(false)
             if (error.response) {
                 const message = error.response.data.message
                 showToast("error", message)
             } else {
-                showToast("error","Something Went Wrong")
+                showToast("error", "Something Went Wrong")
             }
         }
     }
@@ -173,8 +251,8 @@ const EmployeeCreate = () => {
     const fetchDepartmentOptions = async () => {
         try {
             const { options } = await axiosInstance.get('/department/options')
-            if ( options.length > 0) {
-                setDepartmentOptions(options.map(data => ({label: data.name, value: data._id})))
+            if (options.length > 0) {
+                setDepartmentOptions(options.map(data => ({ label: data.name, value: data._id })))
             }
         } catch (error) {
             if (error.response) {
@@ -189,7 +267,7 @@ const EmployeeCreate = () => {
     const fetchJobTypeOptions = async () => {
         try {
             const { options } = await axiosInstance.get('/job-type/options')
-            if(options.length > 0) {
+            if (options.length > 0) {
                 setJobTypeOptions(options)
             }
         } catch (error) {
@@ -205,7 +283,7 @@ const EmployeeCreate = () => {
     const fetchPostionOptions = async () => {
         try {
             const { options } = await axiosInstance.get('/position/options')
-            if(options.length > 0) {
+            if (options.length > 0) {
                 setPositionOptions(options.map(data => ({ label: data.name, value: data._id })))
             }
         } catch (error) {
@@ -249,8 +327,28 @@ const EmployeeCreate = () => {
             <div className="rounded-sm border border-[#e6e5e5] bg-[#fefefe] p-5">
                 <div className="mb-3 flex space-x-5">
                     {/* Employee Image */}
-                    <div className="w-[200px] border border-[#e6e5e5] p-3 flex items-center justify-center">
-                        <BiSolidImageAdd size={100} />
+                    <div className="w-[300px] border border-[#e6e5e5] p-3 flex items-center justify-center relative">
+                        {profile.previewUrl ? (
+                            <>
+                                <img
+                                    src={profile.previewUrl}
+                                    alt="Profile Preview"
+                                    className="w-full h-auto"
+                                />
+                                <div className="absolute top-5 right-5 space-x-2">
+                                    <button className=" btn bg-[#6366f1] text-white border-none" onClick={uploadFile}>
+                                        <FaEdit size={16} className="font-semibold" />
+                                    </button>
+                                    <button className=" btn bg-[#f97373] text-white border-none" onClick={removeFileSelect}>
+                                        <FiX size={16} className="font-semibold" />
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <button className="btn bg-[#4caf93] text-white border-none" onClick={uploadFile}>Upload Profile</button>
+                        )}
+                        {errors?.profile && <small className="text-[#fc1303] absolute bottom-3">{errors.profile}</small>}
+                        <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                     </div>
 
                     <div className="flex-1 border border-[#e6e5e5] p-3">

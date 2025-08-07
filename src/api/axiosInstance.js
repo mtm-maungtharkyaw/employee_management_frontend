@@ -4,7 +4,6 @@ const axiosInstance = axios.create({
     baseURL: `http://localhost:3000/api`,
     timeout: 10000,
     headers: {
-        "Content-Type": "application/json",
         Accept: "application/json"
     },
     withCredentials: true
@@ -29,6 +28,14 @@ axiosInstance.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
         }
+
+        const isFormData = config.data instanceof FormData
+        if (isFormData) {
+            delete config.headers['Content-Type']
+        } else {
+            config.headers['Content-Type'] = 'application/json'
+        }
+
         return config
     },
     (error) => {
@@ -59,7 +66,7 @@ axiosInstance.interceptors.response.use(
                 console.warn("No logout handler set in axiosInstance, manually clearing token.")
             }
 
-            if(clearPaymentTokenHandler) {
+            if (clearPaymentTokenHandler) {
                 clearPaymentTokenHandler()
                 console.log("successfully deleted payment access token")
             } else {

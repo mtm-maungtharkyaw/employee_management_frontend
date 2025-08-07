@@ -6,9 +6,6 @@ import Breadcrumbs from '../../components/Breadcrumbs'
 import Loading from '../../components/common/Loading'
 import Input from '../../components/employee/Input'
 
-// icons
-import { BiSolidImageAdd } from "react-icons/bi"
-
 // toastify
 import { ToastContainer, toast } from 'react-toastify'
 
@@ -20,6 +17,9 @@ import axiosInstance from '../../api/axiosInstance'
 
 // auth context
 import { useAuth } from '../../contexts/AuthContext'
+
+// image
+import defaultProfileImage from '../../assets/images/default_profile.jpg'
 
 const BREADCRUMB_ITEMS = [{ label: "Profile" }]
 
@@ -90,8 +90,12 @@ const EmployeeProfile = () => {
                 <div className="rounded-sm border border-[#e6e5e5] bg-[#fefefe] p-5">
                     <div className="mb-3 flex space-x-5">
                         {/* Employee Image */}
-                        <div className="w-[300px] border border-[#e6e5e5] p-3 flex items-center justify-center">
-                            <BiSolidImageAdd size={100} />
+                        <div className="w-[250px] border border-[#e6e5e5] p-3 flex items-center justify-center">
+                            <img
+                                src={employee?.profile ? employee.profile : defaultProfileImage}
+                                alt="Profile"
+                                className="w-full h-auto"
+                            />
                         </div>
 
                         <div className="flex-1 border border-[#e6e5e5] p-3">

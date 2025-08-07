@@ -9,9 +9,6 @@ import Breadcrumbs from '../../components/Breadcrumbs'
 import Loading from '../../components/common/Loading'
 import Input from '../../components/employee/Input'
 
-// icons
-import { BiSolidImageAdd } from "react-icons/bi"
-
 // toastify
 import { ToastContainer, toast } from 'react-toastify'
 
@@ -20,6 +17,9 @@ import moment from 'moment'
 
 // axiosInstance
 import axiosInstance from '../../api/axiosInstance'
+
+// image
+import defaultProfileImage from '../../assets/images/default_profile.jpg'
 
 const BREADCRUMB_ITEMS = [{ label: "Employee", to: "/employees" }, { label: "Detail" }]
 
@@ -97,8 +97,12 @@ const EmployeeDetail = () => {
                 <div className="rounded-sm border border-[#e6e5e5] bg-[#fefefe] p-5">
                     <div className="mb-3 flex space-x-5">
                         {/* Employee Image */}
-                        <div className="w-[200px] border border-[#e6e5e5] p-3 flex items-center justify-center">
-                            <BiSolidImageAdd size={100} />
+                        <div className="w-[250px] border border-[#e6e5e5] p-3 flex items-center justify-center">
+                            <img
+                                src={employee?.profile ? employee.profile : defaultProfileImage}
+                                alt="Profile"
+                                className="w-full h-auto"
+                            />
                         </div>
 
                         <div className="flex-1 border border-[#e6e5e5] p-3">
@@ -106,7 +110,7 @@ const EmployeeDetail = () => {
                                 <div>
                                     {/* Employee Id */}
                                     <Input
-                                        label="Employee Id" 
+                                        label="Employee Id"
                                         name="employee_id"
                                         containerClassName="mb-3"
                                         labelClassName="text-[#5c5c5c] text-sm"
@@ -200,6 +204,9 @@ const EmployeeDetail = () => {
                             </div>
                         </div>
                     </div>
+                    <div className="flex justify-end">
+                        <button className="bg-soft-green btn text-white border-none mr-3 w-[120px] py-2" onClick={goBack}>Back</button>
+                    </div>
                 </div>
             )}
 
@@ -208,8 +215,12 @@ const EmployeeDetail = () => {
                 <div className="rounded-sm border border-[#e6e5e5] bg-[#fefefe] p-5">
                     <div className="mb-3 flex space-x-5">
                         {/* Employee Image */}
-                        <div className="w-[200px] border border-[#e6e5e5] p-3 flex items-center justify-center">
-                            <BiSolidImageAdd size={100} />
+                        <div className="w-[250px] border border-[#e6e5e5] p-3 flex items-center justify-center">
+                            <img
+                                src={employee?.profile ? employee.profile : defaultProfileImage}
+                                alt="Profile"
+                                className="w-full h-auto"
+                            />
                         </div>
 
                         <div className="flex-1 border border-[#e6e5e5] p-3">
