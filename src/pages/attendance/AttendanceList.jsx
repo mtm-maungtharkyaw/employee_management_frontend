@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react"
 
 // react router dom
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 
 // components
 import Breadcrumbs from "../../components/Breadcrumbs"
 import Loading from "../../components/common/Loading"
 import Pagination from "../../components/common/Pagination"
 import Button from "../../components/common/Button"
+import DeleteConfirmModal from '../../components/common/DeleteConfirmModal'
 
 // icons
 import { IoAddCircle } from "react-icons/io5"
@@ -28,12 +29,18 @@ const BREADCRUMB_ITEMS = [{
 }]
 
 const AttendanceList = () => {
-    const nevigate = useNavigate()
+    const navigate = useNavigate()
+    const location = useLocation()
 
     const [date, setDate] = useState('')
     const [attendances, setAttendances] = useState([])
     const [pagination, setPagination] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+
+    const [deleteModalInfo, setDeleteModalInfo] = useState({
+        isVisible: false,
+        data: null
+    })
 
     const showToast = (type = "success", message) => {
         if (type === "success") {
@@ -44,7 +51,11 @@ const AttendanceList = () => {
     }
 
     const goToAttendnaceListReportPage = () => {
-        nevigate('/attendanceListReport')
+        navigate('/attendanceListReport')
+    }
+
+    const goToEditPge = (id) => {
+        navigate(`/attendanceEdit/${id}`)
     }
 
     const searchAttendance = () => {
@@ -75,10 +86,56 @@ const AttendanceList = () => {
         }
     }
 
+    const closeDeleteModal = () => {
+        setDeleteModalInfo(prev => ({
+            ...prev,
+            isVisible: false,
+            data: null
+        }))
+    }
+
+    const openDeleteModal = (index) => {
+        if (index < 0 || index >= attendances.length) return;
+        const attendanceToDelete = attendances[index]
+        setDeleteModalInfo(prev => ({
+            ...prev,
+            data: attendanceToDelete,
+            isVisible: true
+        }))
+    }
+
+    const deleteAttendance = async () => {
+        const id = deleteModalInfo.data._id
+        closeDeleteModal()
+        setIsLoading(true)
+        try {
+            await axiosInstance.delete(`/attendance/${id}`)
+            showToast("success", "Successfully Deleted Attendance")
+        } catch (error) {
+            console.error(error)
+            if (error.response) {
+                const message = error.response.data.message
+                showToast("error", message)
+            } else {
+                showToast("error", "Something Went Wrong")
+            }
+        } finally {
+            closeDeleteModal()
+            setIsLoading(false)
+            fetchAttendance(date, 1, pagination.limit)
+        }
+    }
+
     useEffect(() => {
-        const todayDate = moment().startOf('day')
-        setDate(todayDate.format('YYYY-MM-DD'))
-        fetchAttendance(todayDate.toISOString())
+        const filterDate = location.state?.date
+        if (filterDate) {
+            setDate(filterDate)
+            fetchAttendance(moment(filterDate).toISOString())
+        } else {
+            const todayDate = moment().startOf('day')
+            setDate(todayDate.format('YYYY-MM-DD'))
+            fetchAttendance(todayDate.toISOString())
+        }
     }, [])
     return (
         <>
@@ -101,6 +158,14 @@ const AttendanceList = () => {
 
             {/* Breadcrumbs */}
             <Breadcrumbs items={BREADCRUMB_ITEMS} />
+
+            {/* Confirm Modal */}
+            {deleteModalInfo.isVisible && (
+                <DeleteConfirmModal
+                    cancel={closeDeleteModal}
+                    confirm={deleteAttendance}
+                />
+            )}
 
             <div className='flex justify-between items-end mb-5'>
                 {/* Filter Options */}
@@ -160,7 +225,12 @@ const AttendanceList = () => {
                                             <td>{attendance.check_out ? moment(attendance.check_out).format('hh:mm A') : ''}</td>
                                             <td>{attendance?.status}</td>
                                             <td>{attendance?.notes}</td>
-                                            <td></td>
+                                            <td>
+                                                <div className='flex space-x-3'>
+                                                    <button onClick={() => goToEditPge(attendance._id)}><FaEdit size={18} className='text-[#25a8fa] cursor-pointer' /></button>
+                                                    <button onClick={() => openDeleteModal(index)} ><RiDeleteBin5Line size={18} className='text-[#f73643] cursor-pointer' /></button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))
                                 }

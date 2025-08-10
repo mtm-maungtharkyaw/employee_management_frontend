@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react"
 
+// react router dom
+import { useNavigate } from "react-router-dom"
+
+// icons
+import { FaEdit } from "react-icons/fa"
+import { RiDeleteBin5Line } from "react-icons/ri"
+
 // momment
 import moment from "moment"
 
@@ -7,6 +14,7 @@ import moment from "moment"
 import Breadcrumbs from "../../components/Breadcrumbs"
 import Loading from "../../components/common/Loading"
 import Pagination from "../../components/common/Pagination"
+import DeleteConfirmModal from '../../components/common/DeleteConfirmModal'
 
 // axios instance
 import axiosInstance from "../../api/axiosInstance"
@@ -22,12 +30,18 @@ const BREADCRUMB_ITEMS = [{
 
 const AttendanceHistory = () => {
     const { authUser } = useAuth()
+    const navigate = useNavigate()
 
     const [fromDate, setFromDate] = useState('')
     const [toDate, setToDate] = useState('')
     const [attendances, setAttendances] = useState([])
     const [pagination, setPagination] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+
+    const [deleteModalInfo, setDeleteModalInfo] = useState({
+        isVisible: false,
+        data: null
+    })
 
     const init = () => {
         const firstDay = moment().startOf('month')
@@ -84,7 +98,7 @@ const AttendanceHistory = () => {
                 limit
             };
 
-            const { attendances, pagination } = await axiosInstance.post('/attendance/by-employee', payload);
+            const { attendances, pagination } = await axiosInstance.post('/attendance/by-employee', payload)
             setAttendances(attendances)
             setPagination(pagination)
         } catch (error) {
@@ -104,6 +118,50 @@ const AttendanceHistory = () => {
 
     const searchAttendance = () => {
         fetchAttendance(fromDate, toDate, "", 1, pagination.limit)
+    }
+
+    const closeDeleteModal = () => {
+        setDeleteModalInfo(prev => ({
+            ...prev,
+            isVisible: false,
+            data: null
+        }))
+    }
+
+    const openDeleteModal = (index) => {
+        if (index < 0 || index >= attendances.length) return;
+        const attendanceToDelete = attendances[index]
+        setDeleteModalInfo(prev => ({
+            ...prev,
+            data: attendanceToDelete,
+            isVisible: true
+        }))
+    }
+
+    const goToEditPge = (id) => {
+        navigate(`/attendanceEdit/${id}`)
+    }
+
+    const deleteAttendance = async () => {
+        const id = deleteModalInfo.data._id
+        closeDeleteModal()
+        setIsLoading(true)
+        try {
+            await axiosInstance.delete(`/attendance/${id}`)
+            showToast("success", "Successfully Deleted Attendance")
+        } catch (error) {
+            console.error(error)
+            if (error.response) {
+                const message = error.response.data.message
+                showToast("error", message)
+            } else {
+                showToast("error", "Something Went Wrong")
+            }
+        } finally {
+            closeDeleteModal()
+            setIsLoading(false)
+            fetchAttendance(fromDate, toDate, '', 1, pagination.limit)
+        }
     }
 
     useEffect(() => {
@@ -131,6 +189,14 @@ const AttendanceHistory = () => {
 
             {/* Breadcrumbs */}
             <Breadcrumbs items={BREADCRUMB_ITEMS} />
+
+            {/* Confirm Modal */}
+            {deleteModalInfo.isVisible && (
+                <DeleteConfirmModal
+                    cancel={closeDeleteModal}
+                    confirm={deleteAttendance}
+                />
+            )}
 
             <div className='flex justify-start items-end mb-5'>
                 {/* Filter Options */}
@@ -192,7 +258,14 @@ const AttendanceHistory = () => {
                                             <td>{attendance.check_out ? moment(attendance.check_out).format('hh:mm A') : ''}</td>
                                             <td>{attendance?.status}</td>
                                             <td>{attendance?.notes}</td>
-                                            <td></td>
+                                            <td>
+                                                {attendance._id && (
+                                                    <div className='flex space-x-3'>
+                                                        <button onClick={() => goToEditPge(attendance._id)}><FaEdit size={18} className='text-[#25a8fa] cursor-pointer' /></button>
+                                                        <button onClick={() => openDeleteModal(index)} ><RiDeleteBin5Line size={18} className='text-[#f73643] cursor-pointer' /></button>
+                                                    </div>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))
                                 }

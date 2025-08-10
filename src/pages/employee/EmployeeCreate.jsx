@@ -228,7 +228,6 @@ const EmployeeCreate = () => {
 
         try {
             const data = await axiosInstance.post('/employee/create', formData)
-            console.log(data)
             showToast("success", "Successfully Created Employee")
             const elapsed = Date.now() - start
             const delay = Math.max(1000 - elapsed, 0)
@@ -658,8 +657,8 @@ const EmployeeCreate = () => {
                 </div>
 
                 <div className="flex justify-end">
-                    <button className="bg-soft-green btn text-white border-none mr-3 w-[120px] py-2" onClick={createEmployee}>Add</button>
                     <button className="bg-gray-500  btn text-white border-none w-[120px] py-2" onClick={goToEmployeeListPage}>Cancel</button>
+                    <button className="bg-soft-green btn text-white border-none mr-3 w-[120px] py-2" onClick={createEmployee}>Add</button>
                 </div>
             </div>
         </>

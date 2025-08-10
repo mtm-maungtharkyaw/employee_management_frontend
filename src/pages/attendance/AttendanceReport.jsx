@@ -20,24 +20,13 @@ import Joi from "joi"
 import { validateData } from "../../utils/helper"
 
 // constants
-import { AUTH_ROLES } from "../../constants/role"
+import { ATTENDANCE_STATUS } from "../../constants/constant"
 
 import { useAuth } from "../../contexts/AuthContext"
 
 const BREADCRUMB_ITEMS = [{
     label: "Attendance Report"
 }]
-
-const ATTENDANCE_STATUS = [
-    {
-        key: 'Work From Home',
-        value: "work_from_home"
-    },
-    {
-        key: 'OFFICE',
-        value: 'office'
-    }
-]
 
 const AttendanceReport = () => {
     const { authUser } = useAuth()

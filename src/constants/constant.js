@@ -119,3 +119,14 @@ export const MARITAL_STATUS_OPTIONS = [
     { value: 'widowed', label: 'Widowed' },
     { value: 'separated', label: 'Separated' },
 ]
+
+export const ATTENDANCE_STATUS = [
+    {
+        key: 'Work From Home',
+        value: "work_from_home"
+    },
+    {
+        key: 'OFFICE',
+        value: 'office'
+    }
+]
