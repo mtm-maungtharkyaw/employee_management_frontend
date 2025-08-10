@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react"
 
 // react router dom
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link, useLocation } from "react-router-dom"
 
 // components
 import Breadcrumbs from '../../components/Breadcrumbs'
 import Pagination from '../../components/common/Pagination'
 import Loading from '../../components/common/Loading'
-import DeleteConfirmModal from '../../components/common/DeleteConfirmModal'
 
 // toastify
 import { ToastContainer, toast } from 'react-toastify'
@@ -27,6 +26,7 @@ const BREADCRUMB_ITEMS = [{
 
 const PaymentHistories = () => {
     const navigate = useNavigate()
+    const location = useLocation()
 
     const [paymentHistories, setPaymentHistories] = useState([])
     const [selectedMonth, setSelectedMonth] = useState('')
@@ -102,14 +102,25 @@ const PaymentHistories = () => {
     }
 
     useEffect(() => {
-        const now = moment()
-        const currentYear = now.year()
-        const currentMonth = now.month() + 1
-        fetchHistories({
-            year: currentYear,
-            month: currentMonth
-        })
-        setSelectedMonth(now.format('YYYY-MM'))
+        const searchOptions = location.state?.searchOptions
+        if (searchOptions) {
+            const year = searchOptions.year
+            const month = searchOptions.month
+            fetchHistories({
+                year: year,
+                month: month
+            })
+            setSelectedMonth(`${year}-${String(month).padStart(2, '0')}`)
+        } else {
+            const now = moment()
+            const currentYear = now.year()
+            const currentMonth = now.month() + 1
+            fetchHistories({
+                year: currentYear,
+                month: currentMonth
+            })
+            setSelectedMonth(now.format('YYYY-MM'))
+        }
     }, [])
 
     return (
@@ -170,7 +181,7 @@ const PaymentHistories = () => {
                                 {paymentHistories.map((payment, index) => (
                                     <tr key={payment._id} className="hover:bg-gray-50 border-b border-[#e6e5e5]">
                                         <th>{(pagination.page - 1) * pagination.limit + index + 1}</th>
-                                        <td>{payment.employee.employee_id}</td>
+                                        <td className="underline"><Link to={`/payroll/histories/${payment._id}`}>{payment.employee.employee_id}</Link></td>
                                         <td>{payment.employee.name}</td>
                                         <td>{payment.net_salary}</td>
                                         <td>{moment(`${payment.year}-${payment.month}`, 'YYYY-M').format('YYYY MMMM')}</td>
