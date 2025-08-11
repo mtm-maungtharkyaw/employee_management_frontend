@@ -26,15 +26,17 @@ const DepartmentOverviewCard = () => {
             <h2 className="mb-2 font-semibold dark-blue">Department Overview</h2>
             <div className="max-h-[260px] overflow-y-auto">
                 <table className="table">
-                    <tr className="text-[#00836b] text-sm">
-                        <th>No</th>
-                        <th>Department Name</th>
-                        <th>Total Employee</th>
-                    </tr>
+                    <thead>
+                        <tr className="text-[#00836b] text-sm">
+                            <th>No</th>
+                            <th>Department Name</th>
+                            <th>Total Employee</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {departments.map((dept, index) => (
                             <tr key={dept._id}>
-                                <th>{index+1}</th>
+                                <th>{index + 1}</th>
                                 <td>{dept.name}</td>
                                 <td>{dept.employeeCount}</td>
                             </tr>

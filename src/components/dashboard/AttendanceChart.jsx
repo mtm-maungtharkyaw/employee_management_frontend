@@ -9,91 +9,180 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts';
+import axiosInstance from '../../api/axiosInstance';
+import moment from 'moment';
 
-/**
- * Renders a grouped bar chart for monthly attendance and absence data.
- * It uses a mock data set to demonstrate the structure.
- */
+const generatePastYears = (yearsToGoBack = 10) => {
+    const years = []
+    const currentYear = moment().year()
+
+    for (let i = 0; i < yearsToGoBack; i++) {
+        years.push(currentYear - i)
+    }
+    return years
+}
+
+const generateMonths = () => {
+    const months = [];
+    const startOfYear = moment().startOf('year');
+
+    for (let i = 0; i < 12; i++) {
+        const currentMonth = moment(startOfYear).add(i, 'months');
+        months.push({
+            label: currentMonth.format('MMM'),
+            value: currentMonth.month() + 1
+        });
+    }
+
+    return months;
+}
+
+const getOrdinalSuffix = (n) => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 const AttendanceChartWithRecharts = () => {
-    // State to hold the attendance and absence data
-    const [attendanceData, setAttendanceData] = useState([]);
+    const [attendanceData, setAttendanceData] = useState([])
+    const [selectedYear, setSelectedYear] = useState('')
+    const [selectedMonth, setSelectedMonth] = useState('')
+    const [error, setError] = useState(false);
+    const years = generatePastYears()
+    const months = generateMonths()
+
+    const fetchAttendanceStatus = async (year, month) => {
+        try {
+            const { status } = await axiosInstance.get(`/attendance/${year}/${month}/status`);
+            if (status) {
+                const formatted_status = status.reduce((accumulator, item) => {
+                    if (item && item.day && typeof item.total_attended === 'number') {
+                        accumulator[item.day] = item.total_attended;
+                    }
+                    return accumulator;
+                }, {})
+
+                const attendances = [];
+                const startOfMonth = moment({ year: year, month: month - 1 });
+                const numberOfDays = startOfMonth.daysInMonth();
+                for (let i = 1; i <= numberOfDays; i++) {
+                    const currentDay = moment(startOfMonth).date(i);
+                    const formattedDate = currentDay.format('DD/MM/YYYY');
+                    if (formatted_status[formattedDate]) {
+                        attendances.push({
+                            date: getOrdinalSuffix(i),
+                            attended_employees: formatted_status[formattedDate]
+                        })
+                    } else {
+                        attendances.push({
+                            date: getOrdinalSuffix(i),
+                            attended_employees: 0
+                        })
+                    }
+                }
+
+                setAttendanceData(attendances)
+            }
+        } catch (error) {
+            setError(true);
+            console.error(error);
+        }
+    };
+
+    const onChangeYear = (value) => {
+        setSelectedYear(value)
+        if (value && selectedMonth) {
+            fetchAttendanceStatus(value, selectedMonth)
+        }
+    }
+
+    const onChangeMonth = (value) => {
+        setSelectedMonth(value)
+        if (value && selectedYear) {
+            fetchAttendanceStatus(selectedYear, value)
+        }
+    }
+
+    const init = () => {
+        const year = moment().year();
+        const month = moment().month() + 1;
+        fetchAttendanceStatus(year, month);
+        setSelectedYear(year);
+        setSelectedMonth(month);
+    }
 
     useEffect(() => {
-        // --- MOCK DATA ---
-        // This is a placeholder for your API call.
-        // Replace this with a fetch call to your actual backend.
-        const mockData = [
-            { date: '1st', attended_employees: 18, absent_employees: 2 },
-            { date: '2nd', attended_employees: 20, absent_employees: 0 },
-            { date: '3rd', attended_employees: 19, absent_employees: 1 },
-            { date: '4th', attended_employees: 15, absent_employees: 5 },
-            { date: '5th', attended_employees: 18, absent_employees: 2 },
-            { date: '6th', attended_employees: 20, absent_employees: 0 },
-            { date: '7th', attended_employees: 19, absent_employees: 1 },
-            { date: '8th', attended_employees: 20, absent_employees: 0 },
-            { date: '9th', attended_employees: 20, absent_employees: 0 },
-            { date: '10th', attended_employees: 18, absent_employees: 2 },
-            { date: '11th', attended_employees: 17, absent_employees: 3 },
-            { date: '12th', attended_employees: 20, absent_employees: 0 },
-            { date: '13th', attended_employees: 19, absent_employees: 1 },
-            { date: '14th', attended_employees: 20, absent_employees: 0 },
-            { date: '15th', attended_employees: 16, absent_employees: 4 },
-            { date: '16th', attended_employees: 18, absent_employees: 2 },
-            { date: '17th', attended_employees: 20, absent_employees: 0 },
-            { date: '18th', attended_employees: 19, absent_employees: 1 },
-            { date: '19th', attended_employees: 15, absent_employees: 5 },
-            { date: '20th', attended_employees: 18, absent_employees: 2 },
-            { date: '21st', attended_employees: 20, absent_employees: 0 },
-            { date: '22nd', attended_employees: 19, absent_employees: 1 },
-            { date: '23rd', attended_employees: 20, absent_employees: 0 },
-            { date: '24th', attended_employees: 20, absent_employees: 0 },
-            { date: '25th', attended_employees: 18, absent_employees: 2 },
-            { date: '26th', attended_employees: 17, absent_employees: 3 },
-            { date: '27th', attended_employees: 20, absent_employees: 0 },
-            { date: '28th', attended_employees: 19, absent_employees: 1 },
-            { date: '29th', attended_employees: 20, absent_employees: 0 },
-            { date: '30th', attended_employees: 16, absent_employees: 4 },
-        ];
-
-        setTimeout(() => {
-            setAttendanceData(mockData);
-        }, 1000)
-    }, [])
+        init()
+    }, []);
 
     return (
         <div className="bg-white mx-auto">
-            <div className='flex'>
-                <h2>Monthly Attendance Status</h2>
-                <div></div>
-            </div>
-            <ResponsiveContainer width="100%" height={280}>
-                <BarChart
-                    data={attendanceData}
-                    margin={{ top: 20, right: 20, left: 8, bottom: 5 }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis
-                        label={{
-                            value: 'Number of Employees',
-                            angle: -90,
-                            position: 'insideLeft',
-                            style: { 
-                                textAnchor: 'middle',
-                                fontSize: '14px',
-                                fontWeight: 500,
-                                letterSpacing: 1
-                            }
-                        }}
-                        domain={[0, 20]} // Set a fixed domain for consistent scaling
-                    />
-                    <Tooltip />
-                    <Legend />
-                    {/* Grouped bars are created by using multiple <Bar> components */}
-                    <Bar dataKey="attended_employees" name="Attended" fill="#4cbd9b" />
-                    <Bar dataKey="absent_employees" name="Absent" fill="#eb5252" />
-                </BarChart>
-            </ResponsiveContainer>
+            {error && (
+                <h2 className="text-red-500 text-center py-4">
+                    Something went wrong. Please try again.
+                </h2>
+            )}
+            {!error && (
+                <>
+                    <div className='flex justify-between'>
+                        <h2 className='font-semibold dark-blue'>Monthly Attendance Status</h2>
+                        <div className='flex space-x-2 items-center'>
+                            <div>
+                                <select
+                                    name="year"
+                                    id="year"
+                                    value={selectedYear}
+                                    onChange={(e) => onChangeYear(e.target.value)}
+                                    className='select bg-white border border-b-[#9c9c9c] rounded-none focus:outline-none focus:border-inherit py-1'
+                                >
+                                    <option value="" disabled>Year</option>
+                                    {years.map(year => <option key={year} value={year} >{year}</option>)}
+                                </select>
+                            </div>
+
+                            <div>
+                                <select
+                                    name="month"
+                                    id="month"
+                                    value={selectedMonth}
+                                    onChange={(e) => onChangeMonth(e.target.value)}
+                                    className='select bg-white border border-b-[#9c9c9c] rounded-none focus:outline-none focus:border-inherit py-1'
+                                >
+                                    <option value="" disabled>Month</option>
+                                    {months.map(month => <option key={month.value} value={month.value} >{month.label}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <ResponsiveContainer width="100%" height={265}>
+                        <BarChart
+                            data={attendanceData}
+                            margin={{ top: 20, right: 20, left: 8, bottom: 5 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis
+                                label={{
+                                    value: 'Number of Employees',
+                                    angle: -90,
+                                    position: 'insideLeft',
+                                    style: {
+                                        textAnchor: 'middle',
+                                        fontSize: '14px',
+                                        fontWeight: 500,
+                                        letterSpacing: 1
+                                    }
+                                }}
+                                domain={[0, 20]}
+
+                            />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="attended_employees" name="Attended" fill="#4cbd9b" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </>
+            )}
         </div>
     );
 };

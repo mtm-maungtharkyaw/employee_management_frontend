@@ -656,9 +656,9 @@ const EmployeeCreate = () => {
                     </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end space-x-3">
                     <button className="bg-gray-500  btn text-white border-none w-[120px] py-2" onClick={goToEmployeeListPage}>Cancel</button>
-                    <button className="bg-soft-green btn text-white border-none mr-3 w-[120px] py-2" onClick={createEmployee}>Add</button>
+                    <button className="bg-soft-green btn text-white border-none w-[120px] py-2" onClick={createEmployee}>Add</button>
                 </div>
             </div>
         </>
